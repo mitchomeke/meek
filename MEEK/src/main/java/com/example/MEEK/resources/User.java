@@ -1,8 +1,9 @@
-package com.example.MEEK;
+package com.example.MEEK.resources;
 
 import jakarta.persistence.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -12,6 +13,9 @@ public class User {
     @Id
     @GeneratedValue private Long id;
     private String userName;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    private List<User> meekers;
 
     @Lob
     @Column(name = "display_photo", columnDefinition = "LONGBLOB")
@@ -37,6 +41,13 @@ public class User {
 
     public void setDisplayPhoto(byte[] displayPhoto) {
         this.displayPhoto = displayPhoto;
+    }
+
+    public List<User> getMeekers() {
+        return meekers;
+    }
+    public void addMeeker(User user){
+        meekers.add(user);
     }
 
     @Override

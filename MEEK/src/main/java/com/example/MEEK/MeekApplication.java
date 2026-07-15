@@ -1,5 +1,5 @@
 package com.example.MEEK;
-
+import com.example.MEEK.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
