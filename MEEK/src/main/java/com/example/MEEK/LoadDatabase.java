@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,16 +38,16 @@ public class LoadDatabase {
             userRepository.findAll().forEach(
                     user -> log.info("Preloaded -> "+ user)
             );
-            Song popOut = new Song("Pop Out",new Date(2025,1,2),"Kevin Abstract",3);
-            Song copy = new Song("COPY",new Date(2025,1,2),"Kevin Abstract",2);
-            Song nola = new Song("NOLA",new Date(2025,1,2),"Kevin Abstract",3);
-            Song cocaineNose = new Song("COCAINE NOSE",new Date(2025,1,6),"Playboi Carti",4);
+            Song popOut = new Song("Pop Out",LocalDate.of(2025,1,2),"Kevin Abstract",3);
+            Song copy = new Song("COPY", LocalDate.of(2025,1,2),"Kevin Abstract",2);
+            Song nola = new Song("NOLA",LocalDate.of(2025,1,2),"Kevin Abstract",3);
+            Song cocaineNose = new Song("COCAINE NOSE",LocalDate.of(2025,1,6),"Playboi Carti",4);
 
             List<Song> tracks = new ArrayList<>();
             tracks.add(popOut); tracks.add(copy); tracks.add(nola);
 
             Album blush = new Album("Blush",
-                    new Date(2025,1,2),"Kevin Abstract",tracks);
+                    LocalDate.of(2025,1,2),"Kevin Abstract",tracks);
 
             for (Song song : tracks){
                 song.setAlbum(blush);

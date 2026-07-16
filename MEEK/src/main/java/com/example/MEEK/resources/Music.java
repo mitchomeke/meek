@@ -2,6 +2,7 @@ package com.example.MEEK.resources;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -13,7 +14,7 @@ public abstract class Music {
     @Id
     @GeneratedValue private Long id;
     protected String musicName;
-    protected Date releaseDate;
+    protected LocalDate releaseDate;
     protected String artistName;
     protected int musicLength;
 
@@ -21,13 +22,13 @@ public abstract class Music {
     List<Review> reviews = new ArrayList<>();
 
     public Music(){}
-    public Music(String musicName, Date releaseDate, String artistName, int musicLength){
+    public Music(String musicName, LocalDate releaseDate, String artistName, int musicLength){
         this.artistName = artistName;
         this.musicName = musicName;
         this.releaseDate = releaseDate;
         this.musicLength = musicLength;
     }
-    public Music(String musicName, Date releaseDate, String artistName){
+    public Music(String musicName, LocalDate releaseDate, String artistName){
         this.artistName = artistName;
         this.musicName = musicName;
         this.releaseDate = releaseDate;
@@ -45,11 +46,11 @@ public abstract class Music {
         this.musicName = musicName;
     }
 
-    public Date getReleaseDate() {
+    public LocalDate getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(Date releaseDate) {
+    public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
     }
 

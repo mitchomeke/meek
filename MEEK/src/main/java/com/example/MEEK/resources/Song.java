@@ -1,17 +1,22 @@
 package com.example.MEEK.resources;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
 public class Song extends Music {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "album_id")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonIgnore
     private Album album;
 
     public Song(){}
-    public Song(String musicName, Date releaseDate, String artistName, int musicLength){
+    public Song(String musicName, LocalDate releaseDate, String artistName, int musicLength){
         super(musicName,releaseDate,artistName,musicLength);
     }
     public Album getAlbum() {
@@ -22,7 +27,10 @@ public class Song extends Music {
         this.album = album;
     }
 
-    public double getAlbumRating(){
-        return album.getMusicRating();
+    public String getAlbumRating(){
+        if (album == null){
+            return "This song is a single.";
+        }
+        return "This song's album has a rating of: "+ album.getMusicRating();
     }
 }

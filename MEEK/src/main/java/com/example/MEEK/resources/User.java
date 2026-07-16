@@ -1,7 +1,10 @@
 package com.example.MEEK.resources;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -15,16 +18,22 @@ public class User {
     private String userName;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    private List<User> meekers;
+    @JsonIgnore
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<User> meekers = new ArrayList<>();
 
     @Lob
     @Column(name = "display_photo", columnDefinition = "LONGBLOB")
+    @JsonIgnore
     private byte[] displayPhoto;
 
     public User(){}
     public User(String userName, byte[] displayPhoto){
         this.userName = userName;
         this.displayPhoto = displayPhoto;
+    }
+    public User(String userName){
+        this.userName = userName;
     }
 
     public String getUserName() {
@@ -48,6 +57,10 @@ public class User {
     }
     public void addMeeker(User user){
         meekers.add(user);
+    }
+
+    public Long getId() {
+        return id;
     }
 
     @Override

@@ -4,6 +4,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,7 +15,7 @@ public class Album extends Music {
     private List<Song> tracks = new ArrayList<>();
 
     public Album(){}
-    public Album(String musicName, Date releaseDate, String artistName, List<Song> tracks){
+    public Album(String musicName, LocalDate releaseDate, String artistName, List<Song> tracks){
         super(musicName, releaseDate, artistName);
         this.setTracks(tracks);
         setMusicLength();
