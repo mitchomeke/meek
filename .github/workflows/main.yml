@@ -5,7 +5,7 @@ on:
   branches: ["main","master"]
 
 jobs:
-   verify-project:
+  verify-project:
     runs-on: ubuntu-latest
 
     steps:
