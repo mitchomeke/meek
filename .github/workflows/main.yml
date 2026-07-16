@@ -1,0 +1,23 @@
+name: Java CI with Maven
+
+on:
+ push:
+  branches: ["main","master"]
+
+ jobs:
+   verify-project:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with: 
+       java-version: '21'
+       distribution: 'temurin' 
+
+     - name: Build and Test App
+       run: ./mvnw clean test
+   
