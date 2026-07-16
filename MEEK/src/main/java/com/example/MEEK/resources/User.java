@@ -55,6 +55,14 @@ public class User {
     public List<User> getMeekers() {
         return meekers;
     }
+    public List<String> getMeekerNames(){
+        if (getMeekers() == null){
+            return List.of();
+        }
+        return getMeekers().stream().map(
+                User::getUserName
+        ).toList();
+    }
     public void addMeeker(User user){
         meekers.add(user);
     }

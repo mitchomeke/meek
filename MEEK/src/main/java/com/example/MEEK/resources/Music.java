@@ -33,6 +33,10 @@ public abstract class Music {
         this.musicName = musicName;
         this.releaseDate = releaseDate;
     }
+    public Music(String musicName, String artistName){
+        this.artistName = artistName;
+        this.musicName = musicName;
+    }
 
     public Long getId() {
         return id;
@@ -72,6 +76,9 @@ public abstract class Music {
             sum = sum + reviews.getRating();
         }
         return sum/reviews.size();
+    }
+    public void addReview(Review review){
+        reviews.add(review);
     }
 
     @Override

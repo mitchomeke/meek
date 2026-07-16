@@ -34,5 +34,19 @@ public class Album extends Music {
          this.musicLength = this.musicLength + song.getMusicLength();
         }
     }
+    @Override
+    public double getMusicRating(){
+        int count = 0;
+        int sum = 0;
+        for (Song song : getTracks()){
+            sum = (int) (sum + song.getMusicRating());
+            count++;
+        }
+        for (Review review : reviews){
+            sum = (int) (sum + review.getRating());
+            count++;
+        }
+        return sum/count;
+    }
 
 }

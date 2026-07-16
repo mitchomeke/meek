@@ -1,6 +1,7 @@
 package com.example.MEEK;
 
 import com.example.MEEK.repositories.AlbumRepository;
+import com.example.MEEK.repositories.MusicRepository;
 import com.example.MEEK.repositories.SongRepository;
 import com.example.MEEK.repositories.UserRepository;
 import com.example.MEEK.resources.Album;
@@ -27,7 +28,7 @@ public class LoadDatabase {
 
     @Bean
     CommandLineRunner initDatabase(AlbumRepository albumRepository, SongRepository songRepository,
-                                   UserRepository userRepository) throws IOException {
+                                   UserRepository userRepository, MusicRepository musicRepository) throws IOException {
         Path photoPath = Paths.get("C:/Users/PC/Downloads/xperiment.png");
         byte[] photoBytes = Files.readAllBytes(photoPath);
         return args -> {
@@ -38,10 +39,10 @@ public class LoadDatabase {
             userRepository.findAll().forEach(
                     user -> log.info("Preloaded -> "+ user)
             );
+            Song cocaineNose = new Song("COCAINE NOSE",LocalDate.of(2025,1,6),"Playboi Carti",4);
             Song popOut = new Song("Pop Out",LocalDate.of(2025,1,2),"Kevin Abstract",3);
             Song copy = new Song("COPY", LocalDate.of(2025,1,2),"Kevin Abstract",2);
             Song nola = new Song("NOLA",LocalDate.of(2025,1,2),"Kevin Abstract",3);
-            Song cocaineNose = new Song("COCAINE NOSE",LocalDate.of(2025,1,6),"Playboi Carti",4);
 
             List<Song> tracks = new ArrayList<>();
             tracks.add(popOut); tracks.add(copy); tracks.add(nola);
@@ -53,12 +54,12 @@ public class LoadDatabase {
                 song.setAlbum(blush);
             }
 
-            log.info("Song Created -> "+ songRepository.save(cocaineNose));
+            log.info("Song Created -> "+ musicRepository.save(cocaineNose));
             songRepository.findAll().forEach(
                     song -> log.info("Preloaded -> " + song)
             );
 
-            log.info("Album Created -> " + albumRepository.save(blush));
+            log.info("Album Created -> " + musicRepository.save(blush));
             albumRepository.findAll().forEach(
                     album -> log.info("Preloaded -> " + album)
             );

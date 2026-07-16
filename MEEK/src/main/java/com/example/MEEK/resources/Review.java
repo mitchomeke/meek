@@ -20,11 +20,17 @@ public class Review {
 
     private double rating;
     private String description;
+    private String userName;
 
     public Review(){}
-    public Review(User user, Music music, double rating, String description){
-        this.user = user;
+    public Review(String userName, Music music, double rating, String description){
+        this.userName = userName;
         this.music = music;
+        this.rating = rating;
+        this.description = description;
+    }
+    public Review(String userName, double rating, String description){
+        this.userName = userName;
         this.rating = rating;
         this.description = description;
     }
@@ -33,16 +39,21 @@ public class Review {
         return id;
     }
 
-    public User getUser() {
-        return user;
+    public String getUserName(){
+        return userName;
     }
-
+    public void setUserName(String userName){
+        this.userName = userName;
+    }
     public void setUser(User user) {
         this.user = user;
     }
 
     public Music getMusic() {
         return music;
+    }
+    public String getMusicName(){
+        return music.getMusicName();
     }
 
     public void setMusic(Music music) {
@@ -60,7 +71,6 @@ public class Review {
     public String getDescription() {
         return description;
     }
-
     public void setDescription(String description) {
         this.description = description;
     }

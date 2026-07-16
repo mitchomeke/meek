@@ -1,7 +1,9 @@
 package com.example.MEEK.controllers;
+import com.example.MEEK.assemblers.ReviewAssembler;
 import com.example.MEEK.assemblers.UserAssembler;
+import com.example.MEEK.exceptions.MusicNotFound;
 import com.example.MEEK.exceptions.UserNotFound;
-import com.example.MEEK.repositories.UserRepository;
+import com.example.MEEK.repositories.*;
 import com.example.MEEK.resources.*;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -22,10 +24,18 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 public class UserRestController {
     private UserAssembler userAssembler;
     private UserRepository userRepository;
+    private MusicRepository musicRepository;
+    private ReviewRepository reviewRepository;
+    private ReviewAssembler reviewAssembler;
 
-    public UserRestController(UserAssembler userAssembler, UserRepository userRepository){
+    public UserRestController(UserAssembler userAssembler, UserRepository userRepository,
+                              ReviewRepository reviewRepository, ReviewAssembler reviewAssembler,
+                              MusicRepository musicRepository){
         this.userAssembler = userAssembler;
         this.userRepository = userRepository;
+        this.reviewRepository = reviewRepository;
+        this.reviewAssembler = reviewAssembler;
+        this.musicRepository = musicRepository;
     }
     @GetMapping("/users")
     public CollectionModel<EntityModel<User>> getAllUsers(){
@@ -36,11 +46,7 @@ public class UserRestController {
     }
     @GetMapping("/users/{id}")
     public EntityModel<User> getUser(@PathVariable Long id){
-        return userRepository.findById(id).map(
-                user -> userAssembler.toModel(user)
-        ).orElseThrow(
-                () -> new UserNotFound(id)
-        );
+        return userAssembler.toModel(getUserById(id));
     }
     @GetMapping(value = "/users/{id}/photo", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> getPhoto(@PathVariable Long id){
@@ -69,9 +75,7 @@ public class UserRestController {
     }
     @PutMapping("/users/follow/{id}")
     public ResponseEntity<?> followUser(@PathVariable Long id, @RequestParam String userName){
-        User user = userRepository.findById(id).orElseThrow(
-                () -> new UserNotFound(id)
-        );
+        User user = getUserById(id);
         if (user.getUserName().equalsIgnoreCase(userName)){
             return ResponseEntity.internalServerError().body("User cannot follow himself/herself");
         }
@@ -85,18 +89,35 @@ public class UserRestController {
     }
     @GetMapping("/users/meekers/{id}")
     public CollectionModel<EntityModel<User>> getMeekers(@PathVariable Long id){
-        User user = userRepository.findById(id).orElseThrow(
-                () -> new UserNotFound(id)
-        );
+        User user = getUserById(id);
         List<EntityModel<User>> meekers = user.getMeekers().stream().map(
                 user1 -> userAssembler.toModel(user1)
         ).collect(Collectors.toList());
         return CollectionModel.of(meekers,linkTo(methodOn(UserRestController.class).getMeekers(id)).withRel("meekers"));
+    }
+    @PostMapping("/users/review/{musicId}")
+    public ResponseEntity<?> reviewMusic(@PathVariable Long musicId, @RequestParam String userName,
+                                         @RequestParam double rating, @RequestParam String description ){
+        Review review = new Review(userName,rating,description);
+        review.setUser(getUserByUserName(userName));
+
+        Music music = musicRepository.findById(musicId).orElseThrow(
+                () -> new MusicNotFound(musicId)
+        );
+
+        review.setMusic(music);
+        music.addReview(review);
+        return ResponseEntity.ok(reviewAssembler.toModel(reviewRepository.save(review)));
     }
     private User getUserByUserName(String userName){
         List<User> ExistUser = userRepository.findAll().stream().filter(
                 user1 -> user1.getUserName().equalsIgnoreCase(userName.trim())
         ).toList();
         return ExistUser.getFirst();
+    }
+    private User getUserById(Long id){
+        return userRepository.findById(id).orElseThrow(
+                () -> new UserNotFound(id)
+        );
     }
 }
