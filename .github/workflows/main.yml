@@ -19,4 +19,4 @@ jobs:
           distribution: 'temurin' 
 
       - name: Build and Test App
-        run: ./mvnw clean test
+        run: mvn clean test
