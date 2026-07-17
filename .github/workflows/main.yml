@@ -22,4 +22,5 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       - name: Build and Test App
+        working-directory: ./MEEK
         run: gradle test
