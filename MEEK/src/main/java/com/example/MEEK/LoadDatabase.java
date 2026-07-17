@@ -4,12 +4,12 @@ import com.example.MEEK.repositories.AlbumRepository;
 import com.example.MEEK.repositories.MusicRepository;
 import com.example.MEEK.repositories.SongRepository;
 import com.example.MEEK.repositories.UserRepository;
-import com.example.MEEK.resources.Album;
-import com.example.MEEK.resources.Song;
-import com.example.MEEK.resources.User;
+import com.example.MEEK.resources.*;
+import jakarta.annotation.Resource;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,8 +29,8 @@ public class LoadDatabase {
     @Bean
     CommandLineRunner initDatabase(AlbumRepository albumRepository, SongRepository songRepository,
                                    UserRepository userRepository, MusicRepository musicRepository) throws IOException {
-        Path photoPath = Paths.get("C:/Users/PC/Downloads/xperiment.png");
-        byte[] photoBytes = Files.readAllBytes(photoPath);
+        ClassPathResource resource = new ClassPathResource("images/xperiment.png");
+        byte[] photoBytes = resource.getContentAsByteArray();
         return args -> {
             log.info("User Created -> "+ userRepository.save(new User("mitch_31",photoBytes)));
             log.info("User Created -> "+ userRepository.save(new User("angela_26",photoBytes)));
