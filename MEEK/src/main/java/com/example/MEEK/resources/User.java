@@ -27,6 +27,8 @@ public class User {
     @JsonIgnore
     private byte[] displayPhoto;
 
+    private String encryptedPassword;
+
     public User(){}
     public User(String userName, byte[] displayPhoto){
         this.userName = userName;
@@ -69,6 +71,13 @@ public class User {
 
     public Long getId() {
         return id;
+    }
+    public void setPassword(String password){
+        encryptedPassword = password;
+    }
+
+    public String getEncryptedPassword() {
+        return encryptedPassword;
     }
 
     @Override

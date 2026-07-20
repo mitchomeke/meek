@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>MEEK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white font-sans p-8">
+ <div class="max-w-xl mx-auto bg-slate-800 p-6 rounded-lg shadow-lg">
+     <h1 class="text-3xl font-bold mb-4 text-emerald-400">MEEK Library</h1>
+     <p class="text-slate-300 mb-6">Welcome to your music repo! Here are your tracks:</p>
+     <ul class="space-y-3">
+         <li th:each="item : ${musicList}" class="p-3 bg-slate-700 rounded flex justify-between items-center">
+             <div>
+                 <span th:text="${item.musicName}" class="font-semibold block">Track Name</span>
+             </div>
+         </li>
+     </ul>
+ </div>
+
+</body>
+</html>
