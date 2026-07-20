@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Welcome to MEEK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white flex items-center justify-center min-h-screen">
+
+<div class="bg-slate-800 p-8 rounded-lg shadow-xl w-full max-w-md text-center border border-slate-700">
+    <h1 class="text-4xl font-extrabold text-emerald-400 mb-2">MEEK</h1>
+    <p class="text-slate-400 mb-8">The App For Listeners</p>
+
+    <div class="space-y-4">
+        <!-- Button 1: Existing Users -->
+        <a th:href="@{/login}"
+           class="block w-full py-3 bg-emerald-500 hover:bg-emerald-600 font-semibold rounded-lg transition duration-200">
+            Sign In (Existing User)
+        </a>
+
+        <!-- Button 2: New Users -->
+        <a th:href="@{/register}"
+           class="block w-full py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-lg border border-slate-600 transition duration-200">
+            Create Account (New User)
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

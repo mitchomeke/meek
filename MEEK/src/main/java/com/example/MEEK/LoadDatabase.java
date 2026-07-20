@@ -10,6 +10,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,13 +29,15 @@ public class LoadDatabase {
 
     @Bean
     CommandLineRunner initDatabase(AlbumRepository albumRepository, SongRepository songRepository,
-                                   UserRepository userRepository, MusicRepository musicRepository) throws IOException {
+                                   UserRepository userRepository, MusicRepository musicRepository,
+                                   PasswordEncoder passwordEncoder) throws IOException {
         ClassPathResource resource = new ClassPathResource("images/xperiment.png");
         byte[] photoBytes = resource.getContentAsByteArray();
+        String encodedPassword = passwordEncoder.encode("Mitchell");
         return args -> {
-            log.info("User Created -> "+ userRepository.save(new User("mitch_31",photoBytes)));
-            log.info("User Created -> "+ userRepository.save(new User("angela_26",photoBytes)));
-            log.info("User Created -> "+ userRepository.save(new User("daisy_44",photoBytes)));
+            log.info("User Created -> "+ userRepository.save(new User("mitch_31",photoBytes,encodedPassword)));
+            log.info("User Created -> "+ userRepository.save(new User("angela_26",photoBytes,encodedPassword)));
+            log.info("User Created -> "+ userRepository.save(new User("daisy_44",photoBytes,encodedPassword)));
 
             userRepository.findAll().forEach(
                     user -> log.info("Preloaded -> "+ user)

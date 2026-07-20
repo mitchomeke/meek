@@ -7,21 +7,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-@EnableWebSecurity
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http){
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**","/js/**","/images/**","/login")
-                .authenticated().anyRequest().permitAll()).
+                .requestMatchers("/","/register","/css/**","/js/**","/images/**","/login")
+                .permitAll().anyRequest().authenticated()).
                 formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/",true)
+                       .loginPage("/login")
+                        .defaultSuccessUrl("/home",true)
                         .permitAll())
                 .logout(logout -> logout.logoutSuccessUrl("/login?logout")
-                        .permitAll());
+                .permitAll());
         return http.build();
     }
     @Bean

@@ -30,9 +30,10 @@ public class User {
     private String encryptedPassword;
 
     public User(){}
-    public User(String userName, byte[] displayPhoto){
+    public User(String userName, byte[] displayPhoto, String encryptedPassword){
         this.userName = userName;
         this.displayPhoto = displayPhoto;
+        this.encryptedPassword = encryptedPassword;
     }
     public User(String userName){
         this.userName = userName;
