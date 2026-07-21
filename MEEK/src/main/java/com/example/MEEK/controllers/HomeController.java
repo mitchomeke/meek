@@ -16,11 +16,13 @@ public class HomeController {
     public HomeController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
+
     @GetMapping("/home")
-    public String homePage(Principal principal, Model model){
-        String userName = principal.getName();
-        User user = userRepository.findByUserName(userName).orElseThrow(
-                () -> new UserNotFound(1l)
+    public String getHomePage(Principal principal, Model model){
+        String name = principal.getName();
+        User user = userRepository.findByUserName(name).orElseThrow(
+                () -> new UserNotFound(1L)
         );
         model.addAttribute("user",user);
         model.addAttribute("friends",user.getMeekers());

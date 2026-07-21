@@ -6,6 +6,7 @@ import com.example.MEEK.repositories.SongRepository;
 import com.example.MEEK.repositories.UserRepository;
 import com.example.MEEK.resources.*;
 import jakarta.annotation.Resource;
+import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +29,7 @@ public class LoadDatabase {
     public LoadDatabase(){}
 
     @Bean
+    @Transactional
     CommandLineRunner initDatabase(AlbumRepository albumRepository, SongRepository songRepository,
                                    UserRepository userRepository, MusicRepository musicRepository,
                                    PasswordEncoder passwordEncoder) throws IOException {
@@ -42,6 +44,17 @@ public class LoadDatabase {
             userRepository.findAll().forEach(
                     user -> log.info("Preloaded -> "+ user)
             );
+
+            List<User> allUsers = userRepository.findAll();
+            for (User user : allUsers){
+                for (User other : allUsers){
+                    if (!user.getId().equals(other.getId())){
+                        user.addMeeker(other);
+                    }
+                }
+                userRepository.save(user);
+               log.info("Added Friends for "+user);
+            }
             Song cocaineNose = new Song("COCAINE NOSE",LocalDate.of(2025,1,6),"Playboi Carti",4);
             Song popOut = new Song("Pop Out",LocalDate.of(2025,1,2),"Kevin Abstract",3);
             Song copy = new Song("COPY", LocalDate.of(2025,1,2),"Kevin Abstract",2);

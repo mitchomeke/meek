@@ -9,6 +9,11 @@
 <div class="bg-slate-800 p-8 rounded-lg shadow-xl w-full max-w-md border border-slate-700">
     <h2 class="text-2xl font-bold text-center text-emerald-400 mb-6">Create New Account</h2>
 
+    <!-- Display error message if username exists -->
+    <div th:if="${param.exists}" class="bg-red-500/20 border border-red-500 text-red-200 p-3 rounded mb-4 text-sm text-center">
+        This Username already exists.
+    </div>
+
     <form th:action="@{/register}" method="post" class="space-y-4">
         <div>
             <label class="block text-sm font-medium mb-1 text-slate-300">Choose Username</label>

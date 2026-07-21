@@ -17,7 +17,7 @@ public class User {
     @GeneratedValue private Long id;
     private String userName;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JsonIgnore
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<User> meekers = new ArrayList<>();

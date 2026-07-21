@@ -6,49 +6,118 @@
 </head>
 <body class="bg-slate-900 text-white p-8 font-sans">
 
-<div class="max-w-3xl mx-auto space-y-6">
+<div class="max-w-4xl mx-auto space-y-6">
 
-    <!-- Welcome Header displaying their specific username -->
+    <!-- Welcome Header -->
     <div class="bg-slate-800 p-6 rounded-lg border border-slate-700 flex justify-between items-center">
         <div>
             <h1 class="text-3xl font-bold text-emerald-400">
-                Welcome back, <span th:text="${user.userName}">Username</span>!
+                Welcome, <span th:text="${user.userName}">Username</span>!
             </h1>
             <p class="text-slate-400 text-sm mt-1">Here is what's happening in your network.</p>
         </div>
 
         <!-- Logout Link -->
         <form th:action="@{/logout}" method="post">
-            <button type="submit" class="px-4 py-2 bg-red-500/20 text-red-300 hover:bg-red-500/30 rounded border border-red-500/50 text-sm">
+            <button type="submit" class="px-4 py-2 bg-red-500/20 text-red-300 hover:bg-red-500/30 rounded border border-red-500/50 text-sm transition">
                 Sign Out
             </button>
         </form>
     </div>
 
-    <!-- Friends List Section -->
-    <div class="bg-slate-800 p-6 rounded-lg border border-slate-700">
-        <h2 class="text-xl font-semibold text-slate-200 mb-4">Your Friends</h2>
+    <!-- Layout Grid: Main Tabs Content + Friends Sidebar -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        <!-- If the user has friends, list them out -->
-        <ul th:if="${friends != null and !friends.isEmpty()}" class="space-y-3">
-            <li th:each="friend : ${friends}" class="flex items-center p-3 bg-slate-700/50 rounded border border-slate-600/50">
-                <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold mr-3">
-                    <!-- Shows first letter of friend's name -->
-                    <span th:text="${#strings.substring(friend.getUserName(), 0, 1).toUpperCase()}">F</span>
-                </div>
-                <div>
-                    <p class="font-medium text-slate-200" th:text="${friend.getUserName()}">Friend Name</p>
-                </div>
-            </li>
-        </ul>
+        <!-- Left / Center: Main Feed with Tabs (Spans 2 Columns) -->
+        <div class="md:col-span-2 space-y-4">
 
-        <!-- Empty State: If the user has no friends yet -->
-        <div th:if="${friends == null or friends.isEmpty()}" class="text-slate-400 italic text-sm py-2">
-            You haven't added any friends yet.
+            <!-- Tab Buttons Header -->
+            <div class="bg-slate-800 p-2 rounded-lg border border-slate-700 flex space-x-2">
+                <button onclick="switchTab('explore')" id="btn-explore"
+                        class="tab-btn flex-1 py-2 rounded-md font-medium text-sm transition text-slate-400 hover:text-white">
+                    Explore
+                </button>
+                <button onclick="switchTab('reviews')" id="btn-reviews"
+                        class="tab-btn flex-1 py-2 rounded-md font-medium text-sm transition text-slate-400 hover:text-white">
+                    Reviews
+                </button>
+                <button onclick="switchTab('trending')" id="btn-trending"
+                        class="tab-btn flex-1 py-2 rounded-md font-medium text-sm transition text-slate-400 hover:text-white">
+                    Trending
+                </button>
+            </div>
+
+            <!-- TAB 1: Explore Content -->
+            <div id="tab-explore" class="tab-content bg-slate-800 p-6 rounded-lg border border-slate-700 hidden">
+                <h2 class="text-xl font-semibold text-emerald-400 mb-3">Explore</h2>
+                <p class="text-slate-300 text-sm">See similar songs and albums your friends and others are reviewing.</p>
+                <!-- Add your song/album loops here later -->
+            </div>
+
+            <!-- TAB 2: Reviews Content -->
+            <div id="tab-reviews" class="tab-content bg-slate-800 p-6 rounded-lg border border-slate-700 hidden">
+                <h2 class="text-xl font-semibold text-emerald-400 mb-3">Your Reviews</h2>
+                <p class="text-slate-300 text-sm">See your past Music Reviews.</p>
+                <!-- Add user reviews here later -->
+            </div>
+
+            <!-- TAB 3: Trending Content -->
+            <div id="tab-trending" class="tab-content bg-slate-800 p-6 rounded-lg border border-slate-700 hidden">
+                <h2 class="text-xl font-semibold text-emerald-400 mb-3">Trending Right Now</h2>
+                <p class="text-slate-300 text-sm">Most rated singles and albums this week.</p>
+                <!-- Add trending tracks here later -->
+            </div>
+
         </div>
+
+        <!-- Right Sidebar: Friends List -->
+        <div class="bg-slate-800 p-6 rounded-lg border border-slate-700 h-fit">
+            <h2 class="text-xl font-semibold text-slate-200 mb-4">Your Friends</h2>
+
+            <ul th:if="${friends != null and !friends.isEmpty()}" class="space-y-3">
+                <li th:each="friend : ${friends}" class="flex items-center p-3 bg-slate-700/50 rounded border border-slate-600/50">
+                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold mr-3 shrink-0">
+                        <span th:text="${#strings.substring(friend.getUserName(), 0, 1).toUpperCase()}">F</span>
+                    </div>
+                    <div class="truncate">
+                        <p class="font-medium text-slate-200 truncate" th:text="${friend.getUserName()}">Friend Name</p>
+                    </div>
+                </li>
+            </ul>
+
+            <div th:if="${friends == null or friends.isEmpty()}" class="text-slate-400 italic text-sm py-2">
+                You haven't added any friends yet.
+            </div>
+        </div>
+
     </div>
 
 </div>
+
+<!-- Tab Switching Logic Script -->
+<script>
+    function switchTab(tabName) {
+        // Hide all tab content panes
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+
+        // Reset all button styles to inactive
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('bg-emerald-500', 'text-white', 'shadow');
+            btn.classList.add('text-slate-400');
+        });
+
+        // Show the selected tab
+        document.getElementById('tab-' + tabName).classList.remove('hidden');
+
+        // Style the active button
+        const activeBtn = document.getElementById('btn-' + tabName);
+        activeBtn.classList.add('bg-emerald-500', 'text-white', 'shadow');
+        activeBtn.classList.remove('text-slate-400');
+    }
+
+    // Default tab when loading the page
+    document.addEventListener('DOMContentLoaded', () => switchTab('explore'));
+</script>
 
 </body>
 </html>
