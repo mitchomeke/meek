@@ -86,8 +86,13 @@
                                     <span th:text="${'★'.repeat(review.rating)}">★★★★★</span>
                                 </div>
 
-                                <!-- Edit Review Trigger Button -->
-                                <button th:onclick="|openEditReview('${review.id}', '${#strings.escapeJavaScript(review.music != null ? review.music.musicName : 'Song')}', '${review.rating}', '${#strings.escapeJavaScript(review.description)}')|"
+
+                                <!-- ✅ WITH THIS SAFE VERSION: -->
+                                <button th:data-id="${review.id}"
+                                        th:data-song="${review.music != null ? review.music.musicName : 'Song'}"
+                                        th:data-rating="${review.rating}"
+                                        th:data-description="${review.description}"
+                                        onclick="openEditReview(this)"
                                         class="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-xs rounded transition shadow shrink-0">
                                     Edit Review
                                 </button>
@@ -224,11 +229,11 @@
             <div>
                 <label class="block text-sm font-medium text-slate-300 mb-1">Rating</label>
                 <select id="edit-rating" name="rating" required class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-400">
-                    <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
-                    <option value="4">⭐⭐⭐⭐ (4/5)</option>
-                    <option value="3">⭐⭐⭐ (3/5)</option>
-                    <option value="2">⭐⭐ (2/5)</option>
-                    <option value="1">⭐ (1/5)</option>
+                    <option value="5">⭐⭐⭐⭐⭐ </option>
+                    <option value="4">⭐⭐⭐⭐ </option>
+                    <option value="3">⭐⭐⭐ </option>
+                    <option value="2">⭐⭐ </option>
+                    <option value="1">⭐ </option>
                 </select>
             </div>
 
@@ -282,12 +287,20 @@
         document.getElementById('review-modal').classList.add('hidden');
     }
 
-    function openEditReview(reviewId, songName, rating, description){
+    function openEditReview(button){
+        // 1. Read values safely from data-* attributes
+        const reviewId = button.getAttribute('data-id');
+        const songName = button.getAttribute('data-song');
+        const rating = button.getAttribute('data-rating');
+        const description = button.getAttribute('data-description');
+
+        // 2. Populate the modal fields
         document.getElementById('edit-review-id').value = reviewId;
         document.getElementById('edit-song-title-display').innerText = "Editing review for " + songName;
         document.getElementById('edit-rating').value = rating;
         document.getElementById('edit-description').value = description;
 
+        // 3. Show the edit modal
         document.getElementById('edit-review-modal').classList.remove('hidden');
     }
 
