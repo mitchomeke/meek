@@ -27,6 +27,11 @@ public class User {
     @JsonIgnore
     private byte[] displayPhoto;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JsonIgnore
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<Review> reviews = new ArrayList<>();
+
     private String encryptedPassword;
 
     public User(){}
@@ -79,6 +84,12 @@ public class User {
 
     public String getEncryptedPassword() {
         return encryptedPassword;
+    }
+    public void addReview(Review review){
+        reviews.add(review);
+    }
+    public List<Review> getReviews(){
+        return reviews;
     }
 
     @Override

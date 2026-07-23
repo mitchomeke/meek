@@ -34,6 +34,15 @@ public class Review {
         this.rating = rating;
         this.description = description;
     }
+    public Review(User user, Music music, double rating, String description){
+        this.user = user;
+        this.music = music;
+        this.rating = rating;
+        this.description = description;
+        this.userName = user.getUserName();
+        user.addReview(this);
+        music.addReview(this);
+    }
 
     public Long getId() {
         return id;

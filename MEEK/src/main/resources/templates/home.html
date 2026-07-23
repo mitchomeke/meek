@@ -51,21 +51,66 @@
             <div id="tab-explore" class="tab-content bg-slate-800 p-6 rounded-lg border border-slate-700 hidden">
                 <h2 class="text-xl font-semibold text-emerald-400 mb-3">Explore</h2>
                 <p class="text-slate-300 text-sm">See similar songs and albums your friends and others are reviewing.</p>
-                <!-- Add your song/album loops here later -->
             </div>
 
             <!-- TAB 2: Reviews Content -->
-            <div id="tab-reviews" class="tab-content bg-slate-800 p-6 rounded-lg border border-slate-700 hidden">
-                <h2 class="text-xl font-semibold text-emerald-400 mb-3">Your Reviews</h2>
-                <p class="text-slate-300 text-sm">See your past Music Reviews.</p>
-                <!-- Add user reviews here later -->
+            <div id="tab-reviews" class="tab-content bg-slate-800 p-6 rounded-lg border border-slate-700 hidden space-y-4">
+
+                <!-- Header with Title on Left & "+ Create Review" Button on Right -->
+                <div class="flex justify-between items-center border-b border-slate-700/60 pb-3">
+                    <div>
+                        <h2 class="text-xl font-semibold text-emerald-400">Your Reviews</h2>
+                        <p class="text-slate-400 text-xs mt-0.5">See your past Music Reviews.</p>
+                    </div>
+
+                    <!-- Create Review Trigger Button -->
+                    <button onclick="openReviewModal()" id="crt-review"
+                            class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-sm rounded-md transition shadow shrink-0">
+                        + Create Review
+                    </button>
+                </div>
+
+                <!-- 1. Display User's Reviews List -->
+                <div th:if="${userReviews != null and !userReviews.isEmpty()}" class="space-y-3">
+                    <div th:each="review : ${userReviews}" class="p-4 bg-slate-700/40 rounded-lg border border-slate-700 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <!-- Song Title & Artist -->
+                                <h3 class="font-bold text-slate-100" th:text="${review.music != null ? review.music.musicName : 'Song Title'}">Song Title</h3>
+                                <p class="text-xs text-slate-400" th:text="${review.music != null ? review.music.artistName : 'Artist Name'}">Artist Name</p>
+                            </div>
+
+                            <div class="flex items-center space-x-3">
+                                <!-- Star Rating Display -->
+                                <div class="text-amber-400 text-sm font-semibold">
+                                    <span th:text="${'★'.repeat(review.rating)}">★★★★★</span>
+                                </div>
+
+                                <!-- Edit Review Trigger Button -->
+                                <button th:onclick="|openEditReview('${review.id}', '${#strings.escapeJavaScript(review.music != null ? review.music.musicName : 'Song')}', '${review.rating}', '${#strings.escapeJavaScript(review.description)}')|"
+                                        class="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-xs rounded transition shadow shrink-0">
+                                    Edit Review
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Review Description -->
+                        <p class="text-sm text-slate-300 bg-slate-800/50 p-3 rounded border border-slate-700/50 italic"
+                           th:text="${review.description}">Review notes go here...</p>
+                    </div>
+                </div>
+
+                <!-- 2. Empty State (If no reviews yet) -->
+                <div th:if="${userReviews == null or userReviews.isEmpty()}" class="text-slate-400 italic text-sm py-4 text-center">
+                    You haven't submitted any reviews yet. Click "+ Create Review" above to write your first one!
+                </div>
+
             </div>
 
             <!-- TAB 3: Trending Content -->
             <div id="tab-trending" class="tab-content bg-slate-800 p-6 rounded-lg border border-slate-700 hidden">
                 <h2 class="text-xl font-semibold text-emerald-400 mb-3">Trending Right Now</h2>
                 <p class="text-slate-300 text-sm">Most rated singles and albums this week.</p>
-                <!-- Add trending tracks here later -->
             </div>
 
         </div>
@@ -75,13 +120,17 @@
             <h2 class="text-xl font-semibold text-slate-200 mb-4">Your Friends</h2>
 
             <ul th:if="${friends != null and !friends.isEmpty()}" class="space-y-3">
-                <li th:each="friend : ${friends}" class="flex items-center p-3 bg-slate-700/50 rounded border border-slate-600/50">
-                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold mr-3 shrink-0">
-                        <span th:text="${#strings.substring(friend.getUserName(), 0, 1).toUpperCase()}">F</span>
-                    </div>
-                    <div class="truncate">
-                        <p class="font-medium text-slate-200 truncate" th:text="${friend.getUserName()}">Friend Name</p>
-                    </div>
+                <li th:each="friend : ${friends}">
+                    <a th:href="@{/users/{id}/profile(id=${friend.id})}"
+                       class="flex items-center p-3 bg-slate-700/50 hover:bg-slate-700 rounded border border-slate-600/50 hover:border-emerald-500/50 transition group">
+                        <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white flex items-center justify-center font-bold mr-3 shrink-0 transition">
+                            <span th:text="${#strings.substring(friend.getUserName(), 0, 1).toUpperCase()}">F</span>
+                        </div>
+                        <div class="truncate">
+                            <p class="font-medium text-slate-200 group-hover:text-emerald-400 truncate transition" th:text="${friend.getUserName()}">Friend Name</p>
+                            <span class="text-xs text-slate-400">View profile →</span>
+                        </div>
+                    </a>
                 </li>
             </ul>
 
@@ -94,29 +143,157 @@
 
 </div>
 
-<!-- Tab Switching Logic Script -->
+<!-- Create Review Modal (Hidden by default) -->
+<div id="review-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-lg p-6 w-full max-w-md shadow-2xl space-y-4">
+
+        <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+            <h3 class="text-lg font-bold text-emerald-400">Write a Review</h3>
+            <button onclick="closeReviewModal()" class="text-slate-400 hover:text-white font-bold text-lg">&times;</button>
+        </div>
+
+        <form th:action="@{/reviews}" method="post" class="space-y-4">
+
+            <!-- Song Dropdown -->
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Select Song</label>
+                <select name="songId" required class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-400">
+                    <option value="" disabled selected>-- Choose a track --</option>
+                    <option th:each="song : ${songs}"
+                            th:value="${song.id}"
+                            th:text="${song.musicName} + ' - ' + ${song.artistName}">
+                        Song Title - Artist
+                    </option>
+                </select>
+            </div>
+
+            <!-- Rating -->
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Rating</label>
+                <select name="rating" required class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-400">
+                    <option value="5">⭐⭐⭐⭐⭐</option>
+                    <option value="4">⭐⭐⭐⭐</option>
+                    <option value="3">⭐⭐⭐</option>
+                    <option value="2">⭐⭐</option>
+                    <option value="1">⭐</option>
+                </select>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Description / Notes</label>
+                <textarea name="description" rows="3" required placeholder="What did you think of this track?"
+                          class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-400"></textarea>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-end space-x-3 pt-2">
+                <button type="button" onclick="closeReviewModal()"
+                        class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-medium rounded transition">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded transition shadow">
+                    Submit Review
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- Edit Review Modal (Hidden by default) -->
+<div id="edit-review-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-lg p-6 w-full max-w-md shadow-2xl space-y-4">
+
+        <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+            <div>
+                <h3 class="text-lg font-bold text-emerald-400">Edit Your Review</h3>
+                <p id="edit-song-title-display" class="text-xs text-slate-400">Editing review for Song Name</p>
+            </div>
+            <button onclick="closeEditReview()" class="text-slate-400 hover:text-white font-bold text-lg">&times;</button>
+        </div>
+
+        <!-- Changed method to POST for standard HTML form compatibility -->
+        <form th:action="@{/reviews/edit}" method="post" class="space-y-4">
+
+            <!-- Hidden field to pass Review ID -->
+            <input type="hidden" id="edit-review-id" name="reviewId" />
+
+            <!-- Rating (Added id="edit-rating") -->
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Rating</label>
+                <select id="edit-rating" name="rating" required class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-400">
+                    <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+                    <option value="4">⭐⭐⭐⭐ (4/5)</option>
+                    <option value="3">⭐⭐⭐ (3/5)</option>
+                    <option value="2">⭐⭐ (2/5)</option>
+                    <option value="1">⭐ (1/5)</option>
+                </select>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Description / Notes</label>
+                <textarea id="edit-description" name="description" rows="3" required placeholder="What did you think of this track?"
+                          class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-400"></textarea>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-end space-x-3 pt-2">
+                <button type="button" onclick="closeEditReview()"
+                        class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-medium rounded transition">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded transition shadow">
+                    Save Changes
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- JavaScript Logic -->
 <script>
     function switchTab(tabName) {
-        // Hide all tab content panes
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
 
-        // Reset all button styles to inactive
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('bg-emerald-500', 'text-white', 'shadow');
             btn.classList.add('text-slate-400');
         });
 
-        // Show the selected tab
         document.getElementById('tab-' + tabName).classList.remove('hidden');
 
-        // Style the active button
         const activeBtn = document.getElementById('btn-' + tabName);
         activeBtn.classList.add('bg-emerald-500', 'text-white', 'shadow');
         activeBtn.classList.remove('text-slate-400');
     }
 
-    // Default tab when loading the page
-    document.addEventListener('DOMContentLoaded', () => switchTab('explore'));
+    document.addEventListener('DOMContentLoaded', () => switchTab('reviews'));
+
+    function openReviewModal() {
+        document.getElementById('review-modal').classList.remove('hidden');
+    }
+
+    function closeReviewModal() {
+        document.getElementById('review-modal').classList.add('hidden');
+    }
+
+    function openEditReview(reviewId, songName, rating, description){
+        document.getElementById('edit-review-id').value = reviewId;
+        document.getElementById('edit-song-title-display').innerText = "Editing review for " + songName;
+        document.getElementById('edit-rating').value = rating;
+        document.getElementById('edit-description').value = description;
+
+        document.getElementById('edit-review-modal').classList.remove('hidden');
+    }
+
+    function closeEditReview(){
+        document.getElementById('edit-review-modal').classList.add('hidden');
+    }
 </script>
 
 </body>

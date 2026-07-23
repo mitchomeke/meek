@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
+@RequestMapping("/api")
 @RestController
 public class UserRestController {
     private UserAssembler userAssembler;
@@ -97,7 +98,7 @@ public class UserRestController {
     }
     @PostMapping("/users/review/{musicId}")
     public ResponseEntity<?> reviewMusic(@PathVariable Long musicId, @RequestParam String userName,
-                                         @RequestParam double rating, @RequestParam String description ){
+                                         @RequestParam double rating, @RequestParam String description){
         Review review = new Review(userName,rating,description);
         review.setUser(getUserByUserName(userName));
 

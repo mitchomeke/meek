@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${profileUser.userName} + ' - Profile'">Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white p-8 font-sans">
+
+<div class="max-w-2xl mx-auto space-y-6">
+
+    <!-- Back to Home Button -->
+    <a th:href="@{/home}" class="inline-flex items-center text-emerald-400 hover:underline text-sm mb-4">
+        ← Back to Dashboard
+    </a>
+
+    <!-- Profile Header Card -->
+    <div class="bg-slate-800 p-8 rounded-lg border border-slate-700 text-center">
+        <div class="w-24 h-24 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-4xl mx-auto mb-4 border-2 border-emerald-500">
+            <span th:text="${#strings.substring(profileUser.userName, 0, 1).toUpperCase()}">U</span>
+        </div>
+
+        <h1 class="text-3xl font-bold text-slate-100" th:text="${profileUser.userName}">Username</h1>
+        <p class="text-slate-400 text-sm mt-1">MEEK Member</p>
+    </div>
+
+</div>
+
+</body>
+</html>
