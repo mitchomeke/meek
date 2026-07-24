@@ -15,6 +15,20 @@
 
     <!-- Profile Header Card -->
     <div class="bg-slate-800 p-8 rounded-lg border border-slate-700 text-center">
+        <div class="absolute top-4 right-4">
+            <form th:if="${isFollowing}" th:action="@{/users/{id}/profile/unfollow(id=${profileUser.getId()})}" method="post">
+                <button type="submit" id="unfollow-user"
+                        class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-sm rounded-md transition shadow shrink-0">
+                    - Unfollow</button>
+            </form>
+
+            <form th:unless="${isFollowing}" th:action="@{/users/{id}/profile/follow(id=${profileUser.getId()})}" method="post">
+                <button type="submit" id="follow-user"
+                        class="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-sm rounded-md transition shadow shrink-0">
+                    + follow</button>
+            </form>
+        </div>
+
         <div class="w-24 h-24 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-4xl mx-auto mb-4 border-2 border-emerald-500">
             <span th:text="${#strings.substring(profileUser.userName, 0, 1).toUpperCase()}">U</span>
         </div>
@@ -23,7 +37,138 @@
         <p class="text-slate-400 text-sm mt-1">MEEK Member</p>
     </div>
 
+    <!-- Tab Buttons Header -->
+    <div class="bg-slate-800 p-2 rounded-lg border border-slate-700 flex space-x-2">
+        <button onclick="switchTab('likes')" id="btn-likes"
+                class="tab-btn flex-1 py-2 rounded-md font-medium text-sm transition text-slate-400 hover:text-white">
+            Likes
+        </button>
+        <button onclick="switchTab('reviews')" id="btn-reviews"
+                class="tab-btn flex-1 py-2 rounded-md font-medium text-sm transition text-slate-400 hover:text-white">
+            Reviews
+        </button>
+    </div>
+
+    <!-- TAB 1: REVIEWS CONTENT -->
+    <div id="tab-reviews" class="tab-content bg-slate-800 p-6 rounded-lg border border-slate-700 hidden space-y-4">
+
+        <!-- Header -->
+        <div class="border-b border-slate-700/60 pb-3">
+            <h2 class="text-xl font-semibold text-emerald-400">Reviews</h2>
+            <p class="text-slate-400 text-xs mt-0.5">See past Music Reviews.</p>
+        </div>
+
+        <!-- 🎯 Reviews List (Placed OUTSIDE the flex header) -->
+        <div th:if="${userReviews != null and !userReviews.isEmpty()}" class="space-y-3">
+            <div th:each="review : ${userReviews}" class="p-4 bg-slate-700/40 rounded-lg border border-slate-700 space-y-2">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <!-- Song Title & Artist -->
+                        <h3 class="font-bold text-slate-100" th:text="${review.music != null ? review.music.musicName : 'Song Title'}">Song Title</h3>
+                        <p class="text-xs text-slate-400" th:text="${review.music != null ? review.music.artistName : 'Artist Name'}">Artist Name</p>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <!-- Star Rating Display -->
+                        <div class="text-amber-400 text-sm font-semibold">
+                            <span th:text="${'★'.repeat(review.rating)}">★★★★★</span>
+                        </div>
+
+                        <form th:if="${#lists.contains(loggedInUserLikes,review)}" th:action="@{/users/{id}/profile/unlike(id=${profileUser.getId()})}" method="post">
+                            <input type="hidden" name="reviewId" th:value="${review.getId()}"/>
+                            <button
+                                    class="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-xs rounded transition shadow shrink-0">
+                                remove like
+                            </button>
+                        </form>
+
+                        <form th:unless="${#lists.contains(loggedInUserLikes,review)}" th:action="@{/users/{id}/profile/like(id=${profileUser.getId()})}" method="post">
+                            <input type="hidden" name="reviewId" th:value="${review.getId()}"/>
+                            <button type="submit"
+                                    class="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-xs rounded transition shadow shrink-0">
+                                like review
+                            </button>
+                        </form>
+
+
+
+                    </div>
+                </div>
+
+                <!-- Review Description -->
+                <p class="text-sm text-slate-300 bg-slate-800/50 p-3 rounded border border-slate-700/50 italic"
+                   th:text="${review.description}">Review notes go here...</p>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${userReviews == null or userReviews.isEmpty()}" class="text-slate-400 italic text-sm py-4 text-center">
+            User has not submitted any reviews yet!
+        </div>
+
+    </div>
+
+    <!-- TAB 2: LIKES CONTENT -->
+    <div id="tab-likes" class="tab-content bg-slate-800 p-6 rounded-lg border border-slate-700 hidden space-y-4">
+
+        <!-- Header -->
+        <div class="border-b border-slate-700/60 pb-3">
+            <h2 class="text-xl font-semibold text-emerald-400">Likes</h2>
+            <p class="text-slate-400 text-xs mt-0.5">See User's Likes.</p>
+        </div>
+
+        <!-- 🎯 Likes List (Placed OUTSIDE the flex header) -->
+        <div th:if="${userLikes != null and !userLikes.isEmpty()}" class="space-y-3">
+            <div th:each="like : ${userLikes}" class="p-4 bg-slate-700/40 rounded-lg border border-slate-700 space-y-2">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-bold text-slate-100" th:text="${like.music != null ? like.music.musicName : 'Song Title'}">Song Title</h3>
+                        <p class="text-xs text-slate-400" th:text="${like.music != null ? like.music.artistName : 'Artist Name'}">Artist Name</p>
+                    </div>
+
+                    <!-- Right Side: Review by UserName -->
+                    <div class="text-right">
+                    <span class="text-xs text-emerald-400 font-medium" th:text="${like.getUserName() != null ? 'Review by ' + like.getUserName(): 'Review by UserName'}">
+            Review by UserName
+        </span>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <!-- Star Rating Display -->
+                        <div class="text-amber-400 text-sm font-semibold">
+                            <span th:text="${'★'.repeat(like.rating)}">★★★★★</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review Description -->
+                <p class="text-sm text-slate-300 bg-slate-800/50 p-3 rounded border border-slate-700/50 italic"
+                   th:text="${like.description}">Review notes go here...</p>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div th:if="${userLikes == null or userLikes.isEmpty()}" class="text-slate-400 italic text-sm py-4 text-center">
+            User has not liked any reviews yet.
+        </div>
+
+    </div>
 </div>
+
+<script>
+    function switchTab(tabName){
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(el => {
+            el.classList.remove('bg-emerald-500', 'text-white', 'shadow');
+            el.classList.add('text-slate-400');
+        });
+        document.getElementById('tab-' + tabName).classList.remove('hidden');
+        const activeBtn = document.getElementById('btn-' + tabName);
+        activeBtn.classList.add('bg-emerald-500', 'text-white', 'shadow');
+        activeBtn.classList.remove('text-slate-400');
+    }
+    document.addEventListener('DOMContentLoaded', () => switchTab('reviews'));
+</script>
 
 </body>
 </html>

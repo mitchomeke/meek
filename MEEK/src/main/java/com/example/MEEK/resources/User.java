@@ -32,6 +32,11 @@ public class User {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<Review> reviews = new ArrayList<>();
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JsonIgnore
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<Review> likes = new ArrayList<>();
+
     private String encryptedPassword;
 
     public User(){}
@@ -74,6 +79,9 @@ public class User {
     public void addMeeker(User user){
         meekers.add(user);
     }
+    public void unfollowUser(User user){
+        meekers.remove(user);
+    }
 
     public Long getId() {
         return id;
@@ -90,6 +98,15 @@ public class User {
     }
     public List<Review> getReviews(){
         return reviews;
+    }
+    public void likeReview(Review review){
+        likes.add(review);
+    }
+    public void removeLike(Review review){
+        likes.remove(review);
+    }
+    public List<Review> getLikes(){
+        return likes;
     }
 
     @Override
