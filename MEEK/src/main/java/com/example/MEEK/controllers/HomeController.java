@@ -7,16 +7,15 @@ import com.example.MEEK.repositories.UserRepository;
 import com.example.MEEK.resources.Music;
 import com.example.MEEK.resources.Review;
 import com.example.MEEK.resources.User;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Comparator;
 
 @Controller
 public class HomeController {
@@ -41,6 +40,13 @@ public class HomeController {
         model.addAttribute("friends",user.getMeekers());
         model.addAttribute("songs",musicRepository.findAll());
         model.addAttribute("userReviews",user.getReviews());
+        model.addAttribute("likes",user.getLikes());
+        model.addAttribute("musics",musicRepository.findAll()
+                .stream().filter(music -> music.getRating() > 0).
+                sorted(Comparator.comparingDouble(Music::getRating).reversed()).toList());
+
+        model.addAttribute("friendReviews",
+                reviewRepository.findByUserIn(user.getMeekers()));
         return "home";
     }
 
@@ -69,6 +75,25 @@ public class HomeController {
         review.setDescription(description);
         review.setUser(user);
         reviewRepository.save(review);
+        return "redirect:/home";
+    }
+
+    @PostMapping("/home/explore/like")
+    public String like(Principal principal, @RequestParam("reviewId") Long reviewId){
+        User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
+        Review review = reviewRepository.findById(reviewId).orElseThrow();
+        loggedInUser.likeReview(review);
+        userRepository.save(loggedInUser);
+
+        return "redirect:/home";
+    }
+    @PostMapping("/home/explore/unlike")
+    public String unlike( Principal principal, @RequestParam("reviewId") Long reviewId){
+        User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
+        Review review = reviewRepository.findById(reviewId).orElseThrow();
+        loggedInUser.removeLike(review);
+        userRepository.save(loggedInUser);
+
         return "redirect:/home";
     }
 }

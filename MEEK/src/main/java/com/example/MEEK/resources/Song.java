@@ -31,6 +31,6 @@ public class Song extends Music {
         if (album == null){
             return "This song is a single.";
         }
-        return "This song's album has a rating of: "+ album.getMusicRating();
+        return "This song's album has a rating of: "+ album.getRating();
     }
 }

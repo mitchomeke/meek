@@ -1,9 +1,6 @@
 package com.example.MEEK;
 
-import com.example.MEEK.repositories.AlbumRepository;
-import com.example.MEEK.repositories.MusicRepository;
-import com.example.MEEK.repositories.SongRepository;
-import com.example.MEEK.repositories.UserRepository;
+import com.example.MEEK.repositories.*;
 import com.example.MEEK.resources.*;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
@@ -30,55 +27,115 @@ public class LoadDatabase {
 
     @Bean
     @Transactional
-    CommandLineRunner initDatabase(AlbumRepository albumRepository, SongRepository songRepository,
-                                   UserRepository userRepository, MusicRepository musicRepository,
+    CommandLineRunner initDatabase(AlbumRepository albumRepository,
+                                   SongRepository songRepository,
+                                   UserRepository userRepository,
+                                   MusicRepository musicRepository,
+                                   ReviewRepository reviewRepository,
                                    PasswordEncoder passwordEncoder) throws IOException {
+
         ClassPathResource resource = new ClassPathResource("images/xperiment.png");
         byte[] photoBytes = resource.getContentAsByteArray();
-        String encodedPassword = passwordEncoder.encode("Mitchell");
+        String encodedPassword = passwordEncoder.encode("Mitchell"); // All users share this password
+
         return args -> {
-            log.info("User Created -> "+ userRepository.save(new User("mitch_31",photoBytes,encodedPassword)));
-            log.info("User Created -> "+ userRepository.save(new User("angela_26",photoBytes,encodedPassword)));
-            log.info("User Created -> "+ userRepository.save(new User("daisy_44",photoBytes,encodedPassword)));
+            // ==========================================
+            // 1. CREATE USERS
+            // ==========================================
+            User mitch = userRepository.save(new User("mitch_31", photoBytes, encodedPassword));
+            User angela = userRepository.save(new User("angela_26", photoBytes, encodedPassword));
+            User daisy = userRepository.save(new User("daisy_44", photoBytes, encodedPassword));
+            User alex = userRepository.save(new User("alex_beats", photoBytes, encodedPassword));
+            User sarah = userRepository.save(new User("sarah_vibes", photoBytes, encodedPassword));
 
-            userRepository.findAll().forEach(
-                    user -> log.info("Preloaded -> "+ user)
-            );
+            userRepository.findAll().forEach(user -> log.info("Preloaded User -> " + user.getUserName()));
 
+            // Make everyone friends with each other
             List<User> allUsers = userRepository.findAll();
-            for (User user : allUsers){
-                for (User other : allUsers){
-                    if (!user.getId().equals(other.getId())){
+            for (User user : allUsers) {
+                for (User other : allUsers) {
+                    if (!user.getId().equals(other.getId())) {
                         user.addMeeker(other);
                     }
                 }
                 userRepository.save(user);
-               log.info("Added Friends for "+user);
             }
-            Song cocaineNose = new Song("COCAINE NOSE",LocalDate.of(2025,1,6),"Playboi Carti",4);
-            Song popOut = new Song("Pop Out",LocalDate.of(2025,1,2),"Kevin Abstract",3);
-            Song copy = new Song("COPY", LocalDate.of(2025,1,2),"Kevin Abstract",2);
-            Song nola = new Song("NOLA",LocalDate.of(2025,1,2),"Kevin Abstract",3);
 
-            List<Song> tracks = new ArrayList<>();
-            tracks.add(popOut); tracks.add(copy); tracks.add(nola);
+            // ==========================================
+            // 2. CREATE SONGS & ALBUMS
+            // ==========================================
 
-            Album blush = new Album("Blush",
-                    LocalDate.of(2025,1,2),"Kevin Abstract",tracks);
+            // Single Track (Standalone)
+            Song cocaineNose = new Song("COCAINE NOSE", LocalDate.of(2025, 1, 6), "Playboi Carti", 4);
+            songRepository.save(cocaineNose);
 
-            for (Song song : tracks){
+            // --- Album 1: Blush by Kevin Abstract ---
+            Song popOut = new Song("Pop Out", LocalDate.of(2025, 1, 2), "Kevin Abstract", 3);
+            Song copy = new Song("COPY", LocalDate.of(2025, 1, 2), "Kevin Abstract", 2);
+            Song nola = new Song("NOLA", LocalDate.of(2025, 1, 2), "Kevin Abstract", 3);
+
+            List<Song> blushTracks = List.of(popOut, copy, nola);
+            Album blush = new Album("Blush", LocalDate.of(2025, 1, 2), "Kevin Abstract", blushTracks);
+            for (Song song : blushTracks) {
                 song.setAlbum(blush);
             }
+            albumRepository.save(blush); // Cascades and saves tracks if configured, or save tracks explicitly
 
-            log.info("Song Created -> "+ musicRepository.save(cocaineNose));
-            songRepository.findAll().forEach(
-                    song -> log.info("Preloaded -> " + song)
-            );
+            // --- Album 2: Chromakopia by Tyler, The Creator ---
+            Song stChroma = new Song("St. Chroma", LocalDate.of(2024, 10, 28), "Tyler, The Creator", 4);
+            Song rahTahTah = new Song("Rah Tah Tah", LocalDate.of(2024, 10, 28), "Tyler, The Creator", 3);
+            Song darlingI = new Song("Darling, I", LocalDate.of(2024, 10, 28), "Tyler, The Creator", 4);
+            Song sticky = new Song("Sticky", LocalDate.of(2024, 10, 28), "Tyler, The Creator", 5);
 
-            log.info("Album Created -> " + musicRepository.save(blush));
-            albumRepository.findAll().forEach(
-                    album -> log.info("Preloaded -> " + album)
-            );
+            List<Song> chromaTracks = List.of(stChroma, rahTahTah, darlingI, sticky);
+            Album chromakopia = new Album("Chromakopia", LocalDate.of(2024, 10, 28), "Tyler, The Creator", chromaTracks);
+            for (Song song : chromaTracks) {
+                song.setAlbum(chromakopia);
+            }
+            albumRepository.save(chromakopia);
+
+            // --- Album 3: Hit Me Hard and Soft by Billie Eilish ---
+            Song lunch = new Song("LUNCH", LocalDate.of(2024, 5, 17), "Billie Eilish", 3);
+            Song chihiro = new Song("CHIHIRO", LocalDate.of(2024, 5, 17), "Billie Eilish", 5);
+            Song birdsOfAFeather = new Song("BIRDS OF A FEATHER", LocalDate.of(2024, 5, 17), "Billie Eilish", 4);
+
+            List<Song> billieTracks = List.of(lunch, chihiro, birdsOfAFeather);
+            Album hitMeHard = new Album("Hit Me Hard and Soft", LocalDate.of(2024, 5, 17), "Billie Eilish", billieTracks);
+            for (Song song : billieTracks) {
+                song.setAlbum(hitMeHard);
+            }
+            albumRepository.save(hitMeHard);
+
+            // ==========================================
+            // 3. CREATE REVIEWS & LIKES
+            // ==========================================
+
+            // Review 1: Mitch reviews "CHIHIRO"
+            Review r1 = new Review(mitch, chihiro, 5, "Absolute masterpiece! Production on this track is insane.");
+            reviewRepository.save(r1);
+
+            // Review 2: Daisy reviews "Pop Out"
+            Review r2 = new Review(daisy, popOut, 4, "Kevin Abstract never fails to deliver a solid hook.");
+            reviewRepository.save(r2);
+
+            // Review 3: Angela reviews "Sticky"
+            Review r3 = new Review(angela, sticky, 5, "Best feature line-up on any track this year!");
+            reviewRepository.save(r3);
+
+            // Review 4: Alex reviews "COCAINE NOSE"
+            Review r4 = new Review(alex, cocaineNose, 3, "Fun track, but feeling a bit repetitive after a few listens.");
+            reviewRepository.save(r4);
+
+            // Add some initial likes between users
+            mitch.likeReview(r3); // Mitch likes Angela's review
+            daisy.likeReview(r1); // Daisy likes Mitch's review
+            sarah.likeReview(r1); // Sarah likes Mitch's review
+
+            userRepository.save(mitch);
+            userRepository.save(daisy);
+            userRepository.save(sarah);
+
+            log.info("Database Initialization Complete!");
         };
     }
 }

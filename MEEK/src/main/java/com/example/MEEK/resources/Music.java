@@ -70,12 +70,15 @@ public abstract class Music {
         return musicLength;
     }
 
-    public double getMusicRating(){
-        double sum = 0;
-        for (Review reviews : reviews){
-            sum = sum + reviews.getRating();
+    public double getRating(){
+        if (reviews == null || reviews.isEmpty()) {
+            return 0.0;
         }
-        return sum/reviews.size();
+        double sum = 0;
+        for (Review r : reviews) {
+            sum += r.getRating();
+        }
+        return Math.round((sum / reviews.size()) * 10.0) / 10.0;
     }
     public void addReview(Review review){
         reviews.add(review);

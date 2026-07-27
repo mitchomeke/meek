@@ -35,18 +35,21 @@ public class Album extends Music {
         }
     }
     @Override
-    public double getMusicRating(){
+    public double getRating(){
+        double sum = 0;
         int count = 0;
-        int sum = 0;
-        for (Song song : getTracks()){
-            sum = (int) (sum + song.getMusicRating());
+        for (Song song : tracks) {
+            for (Review review : song.reviews) {
+                sum += review.getRating();
+                count++;
+            }
+        }
+        for (Review review : reviews) {
+            sum += review.getRating();
             count++;
         }
-        for (Review review : reviews){
-            sum = (int) (sum + review.getRating());
-            count++;
-        }
-        return sum/count;
+        if (count == 0) return 0.0;
+        return Math.round((sum / count) * 10.0) / 10.0;
     }
 
 }

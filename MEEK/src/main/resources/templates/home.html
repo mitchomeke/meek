@@ -45,12 +45,58 @@
                         class="tab-btn flex-1 py-2 rounded-md font-medium text-sm transition text-slate-400 hover:text-white">
                     Trending
                 </button>
+                <button onclick="switchTab('likes')" id="btn-likes"
+                        class="tab-btn flex-1 py-2 rounded-md font-medium text-sm transition text-slate-400 hover:text-white">
+                    Likes
+                </button>
             </div>
 
             <!-- TAB 1: Explore Content -->
-            <div id="tab-explore" class="tab-content bg-slate-800 p-6 rounded-lg border border-slate-700 hidden">
-                <h2 class="text-xl font-semibold text-emerald-400 mb-3">Explore</h2>
-                <p class="text-slate-300 text-sm">See similar songs and albums your friends and others are reviewing.</p>
+            <div id="tab-explore" class="tab-content bg-slate-800 p-6 rounded-lg border border-slate-700 space-y-4">
+                <div>
+                    <h2 class="text-xl font-semibold text-emerald-400 mb-1">Explore</h2>
+                    <p class="text-slate-300 text-sm">See songs and albums your friends are reviewing.</p>
+                </div>
+
+                <!-- Flattened Loop: Only 1 th:each needed -->
+                <div th:if="${not #lists.isEmpty(friendReviews)}" class="space-y-3">
+                    <div th:each="review : ${friendReviews}" class="p-3 bg-slate-900/50 rounded border border-slate-700/50">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-slate-100"
+                                    th:text="${review.music != null ? review.music.musicName : 'Song Title'}">Song Title</h3>
+                                <p class="text-xs text-slate-400"
+                                   th:text="${review.music != null ? review.music.artistName : 'Artist Name'}">Artist Name</p>
+                                <p class="text-sm text-slate-200 mt-2" th:text="${review.description}">Review text...</p>
+                            </div>
+                            <div class="text-right">
+                    <span class="text-xs text-emerald-400 font-medium"
+                          th:text="${review.user != null ? 'Reviewed by ' + review.user.userName : 'Reviewed by Anonymous'}">
+                        Reviewed by UserName
+                    </span>
+                            </div>
+                            <form th:if="${#lists.contains(likes,review)}" th:action="@{/home/explore/unlike#tab-explore}" method="post">
+                                <input type="hidden" name="reviewId" th:value="${review.getId()}"/>
+                                <button
+                                        class="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-xs rounded transition shadow shrink-0">
+                                    remove like
+                                </button>
+                            </form>
+
+                            <form th:unless="${#lists.contains(likes,review)}" th:action="@{/home/explore/like#tab-explore}" method="post">
+                                <input type="hidden" name="reviewId" th:value="${review.getId()}"/>
+                                <button type="submit"
+                                        class="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-xs rounded transition shadow shrink-0">
+                                    like review
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:unless="${not #lists.isEmpty(friendReviews)}" class="text-center py-6 text-slate-500 text-sm italic">
+                    No friend activity yet.
+                </div>
             </div>
 
             <!-- TAB 2: Reviews Content -->
@@ -114,11 +160,92 @@
 
             <!-- TAB 3: Trending Content -->
             <div id="tab-trending" class="tab-content bg-slate-800 p-6 rounded-lg border border-slate-700 hidden">
-                <h2 class="text-xl font-semibold text-emerald-400 mb-3">Trending Right Now</h2>
-                <p class="text-slate-300 text-sm">Most rated singles and albums this week.</p>
+                <div class="flex justify-between items-center border-b border-slate-700/60 pb-3">
+                    <div>
+                        <h2 class="text-xl font-semibold text-emerald-400 mb-3">Trending Right Now</h2>
+                        <p class="text-slate-300 text-sm">Highest rated singles and albums this week.</p>
+                    </div>
+                </div>
+
+                <!-- 1. Display User's Reviews List -->
+                <div th:if="${musics != null and !musics.isEmpty()}" class="space-y-3">
+                    <div th:each="music : ${musics}" class="p-4 bg-slate-700/40 rounded-lg border border-slate-700 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-slate-100" th:text="${music != null ? music.musicName : 'Song Title'}">Song Title</h3>
+                                <p class="text-xs text-slate-400" th:text="${music != null ? music.artistName : 'Artist Name'}">Artist Name</p>
+                            </div>
+
+                            <div class="flex items-center space-x-3">
+                                <!-- Star Rating Display -->
+                                <div class="text-amber-400 text-sm font-semibold">
+                                 <span th:if="${music.getRating() > 0}"
+                                       th:text="${'★'.repeat(T(java.lang.Math).round(music.getRating()))}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Empty State (If no reviews yet) -->
+                <div th:if="${musics == null or musics.isEmpty()}" class="text-slate-400 italic text-sm py-4 text-center">
+                    There is no music in the database yet!
+                </div>
+
+            </div>
+
+            <!-- TAB 4: Liked Content -->
+            <div id="tab-likes" class="tab-content bg-slate-800 p-6 rounded-lg border border-slate-700 hidden space-y-4">
+
+                <!-- Header with Title on Left & "+ Create Review" Button on Right -->
+                <div class="flex justify-between items-center border-b border-slate-700/60 pb-3">
+                    <div>
+                        <h2 class="text-xl font-semibold text-emerald-400">Your Likes</h2>
+                        <p class="text-slate-400 text-xs mt-0.5">See your past Likes.</p>
+                    </div>
+                </div>
+
+                <!-- 1. Display User's Reviews List -->
+                <div th:if="${likes != null and !likes.isEmpty()}" class="space-y-3">
+                    <div th:each="like : ${likes}" class="p-4 bg-slate-700/40 rounded-lg border border-slate-700 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-slate-100" th:text="${like.music != null ? like.music.musicName : 'Song Title'}">Song Title</h3>
+                                <p class="text-xs text-slate-400" th:text="${like.music != null ? like.music.artistName : 'Artist Name'}">Artist Name</p>
+                            </div>
+
+                            <div class="text-right">
+                    <span class="text-xs text-emerald-400 font-medium" th:text="${like.getUserName() != null ? 'Review by ' + like.getUserName(): 'Review by UserName'}">
+            Review by UserName
+        </span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <!-- Star Rating Display -->
+                                <div class="text-amber-400 text-sm font-semibold">
+                                    <span th:text="${'★'.repeat(like.rating)}">★★★★★</span>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Review Description -->
+                        <p class="text-sm text-slate-300 bg-slate-800/50 p-3 rounded border border-slate-700/50 italic"
+                           th:text="${like.description}">Review notes go here...</p>
+                    </div>
+                </div>
+
+                <!-- 2. Empty State (If no reviews yet) -->
+                <div th:if="${likes == null or likes.isEmpty()}" class="text-slate-400 italic text-sm py-4 text-center">
+                    You haven't liked any reviews yet!
+                </div>
+
+            </div>
+
             </div>
 
         </div>
+
+
 
         <!-- Right Sidebar: Friends List -->
         <div class="bg-slate-800 p-6 rounded-lg border border-slate-700 h-fit">
@@ -278,6 +405,11 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => switchTab('reviews'));
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.location.hash === "#tab-explore"){
+            switchTab('explore');
+        }
+    });
 
     function openReviewModal() {
         document.getElementById('review-modal').classList.remove('hidden');
