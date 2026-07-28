@@ -47,6 +47,9 @@ public class HomeController {
 
         model.addAttribute("friendReviews",
                 reviewRepository.findByUserIn(user.getMeekers()));
+        model.addAttribute("musicOfReviews",user.getReviews().stream().map(
+                Review::getMusic
+        ).toList());
         return "home";
     }
 

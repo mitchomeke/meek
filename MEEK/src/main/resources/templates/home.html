@@ -132,7 +132,6 @@
                                     <span th:text="${'★'.repeat(review.rating)}">★★★★★</span>
                                 </div>
 
-
                                 <!-- ✅ WITH THIS SAFE VERSION: -->
                                 <button th:data-id="${review.id}"
                                         th:data-song="${review.music != null ? review.music.musicName : 'Song'}"
@@ -160,14 +159,14 @@
 
             <!-- TAB 3: Trending Content -->
             <div id="tab-trending" class="tab-content bg-slate-800 p-6 rounded-lg border border-slate-700 hidden">
-                <div class="flex justify-between items-center border-b border-slate-700/60 pb-3">
+                <div class="flex justify-between items-center border-b border-slate-700/60 pb-3 mb-4">
                     <div>
-                        <h2 class="text-xl font-semibold text-emerald-400 mb-3">Trending Right Now</h2>
+                        <h2 class="text-xl font-semibold text-emerald-400 mb-1">Trending Right Now</h2>
                         <p class="text-slate-300 text-sm">Highest rated singles and albums this week.</p>
                     </div>
                 </div>
 
-                <!-- 1. Display User's Reviews List -->
+                <!-- 1. Display Trending Music List -->
                 <div th:if="${musics != null and !musics.isEmpty()}" class="space-y-3">
                     <div th:each="music : ${musics}" class="p-4 bg-slate-700/40 rounded-lg border border-slate-700 space-y-2">
                         <div class="flex justify-between items-start">
@@ -176,22 +175,137 @@
                                 <p class="text-xs text-slate-400" th:text="${music != null ? music.artistName : 'Artist Name'}">Artist Name</p>
                             </div>
 
-                            <div class="flex items-center space-x-3">
+                            <div class="flex flex-col items-end space-y-1.5">
                                 <!-- Star Rating Display -->
                                 <div class="text-amber-400 text-sm font-semibold">
-                                 <span th:if="${music.getRating() > 0}"
-                                       th:text="${'★'.repeat(T(java.lang.Math).round(music.getRating()))}"></span>
+                        <span th:if="${music.getRating() > 0}"
+                              th:text="${'★'.repeat(T(java.lang.Math).round(music.getRating()))}"></span>
+                                </div>
+                                <!-- Create or Edit Button Trigger -->
+                                <div>
+                                    <!-- Create Review Trigger (If user hasn't reviewed yet) -->
+                                    <div th:unless="${#lists.contains(musicOfReviews, music)}">
+                                        <button th:onclick="|openTrendingModal('trending-modal-${music.id}')|"
+                                                class="px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-xs rounded-md transition shadow shrink-0">
+                                            + Create Review
+                                        </button>
+                                    </div>
+
+                                    <!-- Edit Review Trigger (If user has already reviewed) -->
+                                    <div th:if="${#lists.contains(musicOfReviews, music)}">
+                                        <div th:each="review : ${userReviews}">
+                                            <button th:if="${review.music == music}"
+                                                    th:data-trending-id="${review.id}"
+                                                    th:data-trending-song="${review.music != null ? review.music.musicName : 'Song'}"
+                                                    th:data-trending-rating="${review.rating}"
+                                                    th:data-trending-description="${review.description}"
+                                                    onclick="openTrendingEditReview(this)"
+                                                    class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-medium text-xs rounded transition shadow shrink-0">
+                                                Edit Review
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Create Review Modal (Unique ID per music) -->
+                        <div th:id="'trending-modal-' + ${music.id}" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+                            <div class="bg-slate-800 border border-slate-700 rounded-lg p-6 w-full max-w-md shadow-2xl space-y-4">
+
+                                <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                                    <h3 class="text-lg font-bold text-emerald-400">Write a Review</h3>
+                                    <button th:onclick="|closeTrendingModal('trending-modal-${music.id}')|" class="text-slate-400 hover:text-white font-bold text-lg">&times;</button>
+                                </div>
+
+                                <form th:action="@{/reviews}" method="post" class="space-y-4">
+                                    <!-- Hidden Music ID -->
+                                    <input type="hidden" name="songId" th:value="${music.id}"/>
+                                    <!-- Song Info -->
+                                    <div>
+                                        <p class="text-xs text-slate-400" th:text="${music.musicName + ' - ' + music.artistName}">Song Title - Artist Name</p>
+                                    </div>
+                                    <!-- Rating -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-300 mb-1">Rating</label>
+                                        <select name="rating" required class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-400">
+                                            <option value="5">⭐⭐⭐⭐⭐</option>
+                                            <option value="4">⭐⭐⭐⭐</option>
+                                            <option value="3">⭐⭐⭐</option>
+                                            <option value="2">⭐⭐</option>
+                                            <option value="1">⭐</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-300 mb-1">Description / Notes</label>
+                                        <textarea name="description" rows="3" required placeholder="What did you think of this track?"
+                                                  class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-400"></textarea>
+                                    </div>
+
+                                    <!-- Buttons -->
+                                    <div class="flex justify-end space-x-3 pt-2">
+                                        <button type="button" th:onclick="|closeTrendingModal('trending-modal-${music.id}')|"
+                                                class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-medium rounded transition">
+                                            Cancel
+                                        </button>
+                                        <button type="submit"
+                                                class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded transition shadow">
+                                            Submit Review
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
+            </div>
 
-                <!-- 2. Empty State (If no reviews yet) -->
-                <div th:if="${musics == null or musics.isEmpty()}" class="text-slate-400 italic text-sm py-4 text-center">
-                    There is no music in the database yet!
+            <!-- Global Single Edit Review Modal (Shared across items via JS) -->
+            <div id="edit-trending-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+                <div class="bg-slate-800 border border-slate-700 rounded-lg p-6 w-full max-w-md shadow-2xl space-y-4">
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                        <div>
+                            <h3 class="text-lg font-bold text-emerald-400">Edit Your Review</h3>
+                            <p id="edit-song-title-trending" class="text-xs text-slate-400">Editing review for Song Name</p>
+                        </div>
+                        <button onclick="closeTrendingEditReview()" class="text-slate-400 hover:text-white font-bold text-lg">&times;</button>
+                    </div>
+
+                    <form th:action="@{/reviews/edit}" method="post" class="space-y-4">
+                        <input type="hidden" id="edit-trendingReview-id" name="reviewId" />
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Rating</label>
+                            <select id="edit-TrendingRating" name="rating" required class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-400">
+                                <option value="5">⭐⭐⭐⭐⭐</option>
+                                <option value="4">⭐⭐⭐⭐</option>
+                                <option value="3">⭐⭐⭐</option>
+                                <option value="2">⭐⭐</option>
+                                <option value="1">⭐</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-1">Description / Notes</label>
+                            <textarea id="edit-TrendingDescription" name="description" rows="3" required
+                                      class="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-emerald-400"></textarea>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 pt-2">
+                            <button type="button" onclick="closeTrendingEditReview()"
+                                    class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm font-medium rounded transition">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                    class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded transition shadow">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
             </div>
 
             <!-- TAB 4: Liked Content -->
@@ -285,7 +399,6 @@
         </div>
 
         <form th:action="@{/reviews}" method="post" class="space-y-4">
-
             <!-- Song Dropdown -->
             <div>
                 <label class="block text-sm font-medium text-slate-300 mb-1">Select Song</label>
@@ -418,6 +531,12 @@
     function closeReviewModal() {
         document.getElementById('review-modal').classList.add('hidden');
     }
+    function openTrendingModal(modalId) {
+        document.getElementById(modalId).classList.remove('hidden');
+    }
+    function closeTrendingModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
 
     function openEditReview(button){
         // 1. Read values safely from data-* attributes
@@ -435,9 +554,28 @@
         // 3. Show the edit modal
         document.getElementById('edit-review-modal').classList.remove('hidden');
     }
+    function openTrendingEditReview(button){
+        // 1. Read values safely from data-* attributes
+        const reviewId = button.getAttribute('data-trending-id');
+        const songName = button.getAttribute('data-trending-song');
+        const rating = button.getAttribute('data-trending-rating');
+        const description = button.getAttribute('data-trending-description');
+
+        // 2. Populate the modal fields
+        document.getElementById('edit-trendingReview-id').value = reviewId;
+        document.getElementById('edit-song-title-trending').innerText = "Editing review for " + songName;
+        document.getElementById('edit-TrendingRating').value = rating;
+        document.getElementById('edit-TrendingDescription').value = description;
+
+        // 3. Show the edit modal
+        document.getElementById('edit-trending-modal').classList.remove('hidden');
+    }
 
     function closeEditReview(){
         document.getElementById('edit-review-modal').classList.add('hidden');
+    }
+    function closeTrendingEditReview(){
+        document.getElementById('edit-trending-modal').classList.add('hidden');
     }
 </script>
 
