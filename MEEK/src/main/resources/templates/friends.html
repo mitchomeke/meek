@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full bg-slate-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${user.userName != null ? 'Friends of ' + user.userName : 'Friends'}">Friends</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-full bg-slate-900 text-slate-100 flex justify-center py-10 px-4 sm:px-6 lg:px-8">
+
+<div class="w-full max-w-2xl space-y-6">
+
+    <!-- Top Navigation -->
+    <div>
+        <a th:href="@{/home}"
+           class="inline-flex items-center text-emerald-400 hover:text-emerald-300 hover:underline text-sm font-medium transition group gap-1.5">
+            <span class="group-hover:-translate-x-0.5 transition-transform">&larr;</span>
+            Back to Home
+        </a>
+    </div>
+
+    <!-- Main Content Card -->
+    <div class="bg-slate-800 p-6 sm:p-8 rounded-xl border border-slate-700 shadow-xl space-y-6">
+
+        <!-- Header Section -->
+        <div class="flex items-center justify-between border-b border-slate-700/80 pb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-100 flex items-center gap-2">
+                    <span>Friends</span>
+                    <span th:if="${friends != null}"
+                          class="text-xs font-semibold px-2.5 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full"
+                          th:text="${#lists.size(friends)}">0</span>
+                </h1>
+                <p class="text-xs text-slate-400 mt-1">
+                    People connected with <span class="text-slate-200 font-medium" th:text="${user.userName}">Username</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Friends List Grid -->
+        <ul th:if="${friends != null and !friends.isEmpty()}" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <li th:each="friend : ${friends}">
+                <a th:href="@{/users/{id}/profile(id=${friend.id})}"
+                   class="flex items-center p-3.5 bg-slate-700/40 hover:bg-slate-700/80 rounded-lg border border-slate-700 hover:border-emerald-500/50 transition group shadow-sm">
+
+                    <!-- User Avatar Circle -->
+                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 group-hover:bg-emerald-500 group-hover:text-white flex items-center justify-center font-bold mr-3 shrink-0 transition">
+                        <span th:text="${#strings.substring(friend.userName, 0, 1).toUpperCase()}">F</span>
+                    </div>
+
+                    <!-- User Info -->
+                    <div class="truncate flex-1">
+                        <p class="font-semibold text-sm text-slate-100 group-hover:text-emerald-400 truncate transition"
+                           th:text="${friend.userName}">Friend Name</p>
+                        <span class="text-xs text-slate-400 group-hover:text-slate-300 flex items-center gap-1 transition">
+                                View Profile
+                                <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                            </span>
+                    </div>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Empty State -->
+        <div th:if="${friends == null or friends.isEmpty()}"
+             class="text-center py-10 px-4 bg-slate-900/40 rounded-lg border border-slate-700/60 space-y-3">
+            <div class="w-12 h-12 rounded-full bg-slate-700/60 text-slate-400 flex items-center justify-center mx-auto text-xl">
+                👥
+            </div>
+            <h3 class="text-slate-200 font-medium text-sm">No Friends Added Yet</h3>
+            <p class="text-slate-400 text-xs max-w-sm mx-auto">
+                Search for users in the network to build your connections list.
+            </p>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

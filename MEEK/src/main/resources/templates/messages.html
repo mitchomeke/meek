@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title th:text= "${receiver.getUserName() != null ? 'Messages with ' + receiver.getUserName() : 'Messages'}">Messages</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+
+<script th:inline="javascript">
+  let stompClient = null;
+  const currentUsername = 'user';
+
+  function connect(){
+    const socket = new SockJS('/ws');
+    stompClient = Stomp.over(socket);
+
+    stompClient.connect({},function (frame){
+      console.log('Connected: ' + frame);
+
+      stompClient.subscribe('/user/queue/messages', function (messageOutput){
+        const message = JSON.parse(messageOutput.body);
+        displayMessage(message.senderUsername, message.content);
+      });
+    });
+  }
+  function sendMessage(receiverUsername,text){
+    if (stompClient && text.trim() !== ''){
+      const chatMessage = {
+        senderUsername: currentUsername,
+        receiverUsername: receiverUsername,
+        content: text
+      };
+      stompClient.send("/app/chat.sendMessage",{},JSON.stringify(chatMessage));
+      displayMessage(currentUsername,text);
+    }
+  }
+  document.addEventListener("DOMContentLoaded",connect);
+</script>
+
+
+
+</body>
+</html>

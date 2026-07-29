@@ -10,6 +10,7 @@
 
     <!-- Welcome Header -->
     <div class="bg-slate-800 p-6 rounded-lg border border-slate-700 flex justify-between items-center">
+        <!-- Left Column: User Greeting -->
         <div>
             <h1 class="text-3xl font-bold text-emerald-400">
                 Welcome, <span th:text="${user.userName}">Username</span>!
@@ -17,12 +18,22 @@
             <p class="text-slate-400 text-sm mt-1">Here is what's happening in your network.</p>
         </div>
 
-        <!-- Logout Link -->
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="px-4 py-2 bg-red-500/20 text-red-300 hover:bg-red-500/30 rounded border border-red-500/50 text-sm transition">
-                Sign Out
-            </button>
-        </form>
+        <!-- Right Column: Navigation & Action Buttons -->
+        <div class="flex items-center gap-4 shrink-0">
+            <!-- Friends Link -->
+            <a th:href="@{/friends}"
+               class="inline-flex items-center text-emerald-400 hover:text-emerald-300 hover:underline text-sm font-medium transition">
+                Friends &larr;
+            </a>
+
+            <!-- Logout Form -->
+            <form th:action="@{/logout}" method="post">
+                <button type="submit"
+                        class="px-4 py-2 bg-red-500/20 text-red-300 hover:bg-red-500/30 rounded border border-red-500/50 text-sm transition">
+                    Sign Out
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Layout Grid: Main Tabs Content + Friends Sidebar -->
@@ -358,33 +369,6 @@
             </div>
 
         </div>
-
-
-
-        <!-- Right Sidebar: Friends List -->
-        <div class="bg-slate-800 p-6 rounded-lg border border-slate-700 h-fit">
-            <h2 class="text-xl font-semibold text-slate-200 mb-4">Your Friends</h2>
-
-            <ul th:if="${friends != null and !friends.isEmpty()}" class="space-y-3">
-                <li th:each="friend : ${friends}">
-                    <a th:href="@{/users/{id}/profile(id=${friend.id})}"
-                       class="flex items-center p-3 bg-slate-700/50 hover:bg-slate-700 rounded border border-slate-600/50 hover:border-emerald-500/50 transition group">
-                        <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white flex items-center justify-center font-bold mr-3 shrink-0 transition">
-                            <span th:text="${#strings.substring(friend.getUserName(), 0, 1).toUpperCase()}">F</span>
-                        </div>
-                        <div class="truncate">
-                            <p class="font-medium text-slate-200 group-hover:text-emerald-400 truncate transition" th:text="${friend.getUserName()}">Friend Name</p>
-                            <span class="text-xs text-slate-400">View profile →</span>
-                        </div>
-                    </a>
-                </li>
-            </ul>
-
-            <div th:if="${friends == null or friends.isEmpty()}" class="text-slate-400 italic text-sm py-2">
-                You haven't added any friends yet.
-            </div>
-        </div>
-
     </div>
 
 </div>
