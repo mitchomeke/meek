@@ -15,16 +15,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 
 @Controller
 public class MessagesController {
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private MessagesRepository messagesRepository;
+
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
-
 
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(Principal principal, @Payload ChatMessageDto dto){
@@ -32,14 +34,12 @@ public class MessagesController {
         User receiver = userRepository.findByUserName(dto.getReceiverUsername()).orElseThrow();
 
         Message message = new Message();
-        message.setSender(sender);
         message.setReceiver(receiver);
+        message.setSender(sender);
         message.setContent(dto.getContent());
+        message.setTimestamp(LocalDateTime.now());
         messagesRepository.save(message);
 
-        messagingTemplate.convertAndSendToUser(
-                dto.getReceiverUsername(),"/queue/messages",dto
-        );
-
-    }
+        messagingTemplate.convertAndSendToUser(dto.getReceiverUsername(),"/queue/messages",dto);
+}
 }

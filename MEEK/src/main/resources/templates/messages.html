@@ -8,38 +8,80 @@
 </head>
 <body>
 
+<div id="chat-box" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+</div>
+
 <script th:inline="javascript">
   let stompClient = null;
-  const currentUsername = 'user';
+  let currentUsername = 'user';
 
   function connect(){
     const socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
 
     stompClient.connect({},function (frame){
-      console.log('Connected: ' + frame);
+      console.log('Connected: '+frame);
 
-      stompClient.subscribe('/user/queue/messages', function (messageOutput){
+      stompClient.subscribe('/user/queue/messages',function (messageOutput){
         const message = JSON.parse(messageOutput.body);
-        displayMessage(message.senderUsername, message.content);
+        displayMessage(message.senderUsername,message.content);
       });
     });
   }
-  function sendMessage(receiverUsername,text){
+  function sendMessage(receiverUserName,text){
     if (stompClient && text.trim() !== ''){
-      const chatMessage = {
-        senderUsername: currentUsername,
-        receiverUsername: receiverUsername,
-        content: text
+      const msgDto = {
+        senderUsername : currentUsername,
+        receiverUsername : receiverUserName,
+        content : text
       };
-      stompClient.send("/app/chat.sendMessage",{},JSON.stringify(chatMessage));
+      stompClient.send('/app/chat.sendMessage',{},JSON.stringify(msgDto));
       displayMessage(currentUsername,text);
     }
   }
   document.addEventListener("DOMContentLoaded",connect);
+
+  function displayMessage(sender, content) {
+    const chatBox = document.getElementById("chat-box");
+
+    // 1. Create a wrapper div for the message row
+    const messageElement = document.createElement("div");
+    messageElement.style.margin = "8px 0";
+    messageElement.style.display = "flex";
+    messageElement.style.flexDirection = "column";
+
+    // 2. Check if the message is from current logged-in user or the other user
+    const isMe = (sender === currentUsername);
+
+    // 3. Align right for 'me', align left for the other person
+    messageElement.style.alignItems = isMe ? "flex-end" : "flex-start";
+
+    // 4. Style the message bubble
+    const bubble = document.createElement("div");
+    bubble.style.padding = "8px 12px";
+    bubble.style.borderRadius = "12px";
+    bubble.style.maxWidth = "70%";
+    bubble.style.wordBreak = "break-word";
+
+    if (isMe) {
+      bubble.style.backgroundColor = "#0084FF"; // Blue bubble for current user
+      bubble.style.color = "white";
+    } else {
+      bubble.style.backgroundColor = "#E4E6EB"; // Gray bubble for received messages
+      bubble.style.color = "black";
+    }
+
+    // 5. Add sender label and text inside the bubble
+    bubble.innerHTML = `<strong>${isMe ? 'You' : sender}:</strong> ${content}`;
+
+    // 6. Append bubble to message element, and message element to chatBox
+    messageElement.appendChild(bubble);
+    chatBox.appendChild(messageElement);
+
+    // 7. Auto-scroll to the bottom of the chat box on new message
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
 </script>
-
-
 
 </body>
 </html>
