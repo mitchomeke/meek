@@ -74,11 +74,14 @@
                     <div th:each="review : ${friendReviews}" class="p-3 bg-slate-900/50 rounded border border-slate-700/50">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="font-bold text-slate-100"
-                                    th:text="${review.music != null ? review.music.musicName : 'Song Title'}">Song Title</h3>
-                                <p class="text-xs text-slate-400"
-                                   th:text="${review.music != null ? review.music.artistName : 'Artist Name'}">Artist Name</p>
-                                <p class="text-sm text-slate-200 mt-2" th:text="${review.description}">Review text...</p>
+                                <a th:href="@{/allreviews(musicId=${review.music.getId()})}" class="group block">
+                                    <h3 class="font-bold text-slate-100 group-hover:text-emerald-400 transition"
+                                        th:text="${review.music != null ? review.music.musicName : 'Song Title'}">Song Title</h3>
+                                    <p class="text-xs text-slate-400"
+                                       th:text="${review.music != null ? review.music.artistName : 'Artist Name'}">Artist Name</p>
+                                    <p class="text-sm text-slate-200 mt-2" th:text="${review.description}">Review text...</p>
+                                </a>
+
                             </div>
                             <div class="text-right">
                     <span class="text-xs text-emerald-400 font-medium"
@@ -88,7 +91,7 @@
                             </div>
                             <form th:if="${#lists.contains(likes,review)}" th:action="@{/home/explore/unlike#tab-explore}" method="post">
                                 <input type="hidden" name="reviewId" th:value="${review.getId()}"/>
-                                <button
+                                <button type="submit"
                                         class="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-xs rounded transition shadow shrink-0">
                                     remove like
                                 </button>
@@ -132,9 +135,11 @@
                     <div th:each="review : ${userReviews}" class="p-4 bg-slate-700/40 rounded-lg border border-slate-700 space-y-2">
                         <div class="flex justify-between items-start">
                             <div>
-                                <!-- Song Title & Artist -->
-                                <h3 class="font-bold text-slate-100" th:text="${review.music != null ? review.music.musicName : 'Song Title'}">Song Title</h3>
-                                <p class="text-xs text-slate-400" th:text="${review.music != null ? review.music.artistName : 'Artist Name'}">Artist Name</p>
+                                <a th:href="@{/allreviews(musicId=${review.music.getId()})}" class="group block">
+                                    <!-- Song Title & Artist -->
+                                    <h3 class="font-bold text-slate-100 group-hover:text-emerald-400 transition" th:text="${review.music != null ? review.music.musicName : 'Song Title'}">Song Title</h3>
+                                    <p class="text-xs text-slate-400" th:text="${review.music != null ? review.music.artistName : 'Artist Name'}">Artist Name</p>
+                                </a>
                             </div>
 
                             <div class="flex items-center space-x-3">
@@ -182,8 +187,10 @@
                     <div th:each="music : ${musics}" class="p-4 bg-slate-700/40 rounded-lg border border-slate-700 space-y-2">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="font-bold text-slate-100" th:text="${music != null ? music.musicName : 'Song Title'}">Song Title</h3>
-                                <p class="text-xs text-slate-400" th:text="${music != null ? music.artistName : 'Artist Name'}">Artist Name</p>
+                                <a th:href="@{/allreviews(musicId=${music.getId()})}" class="group block">
+                                    <h3 class="font-bold text-slate-100 group-hover:text-emerald-400 transition" th:text="${music != null ? music.musicName : 'Song Title'}">Song Title</h3>
+                                    <p class="text-xs text-slate-400" th:text="${music != null ? music.artistName : 'Artist Name'}">Artist Name</p>
+                                </a>
                             </div>
 
                             <div class="flex flex-col items-end space-y-1.5">
@@ -335,10 +342,11 @@
                     <div th:each="like : ${likes}" class="p-4 bg-slate-700/40 rounded-lg border border-slate-700 space-y-2">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="font-bold text-slate-100" th:text="${like.music != null ? like.music.musicName : 'Song Title'}">Song Title</h3>
-                                <p class="text-xs text-slate-400" th:text="${like.music != null ? like.music.artistName : 'Artist Name'}">Artist Name</p>
+                                <a th:href="@{/allreviews(musicId=${like.music.getId()})}" class="group block">
+                                    <h3 class="font-bold text-slate-100 group-hover:text-emerald-400 transition" th:text="${like.music != null ? like.music.musicName : 'Song Title'}">Song Title</h3>
+                                    <p class="text-xs text-slate-400" th:text="${like.music != null ? like.music.artistName : 'Artist Name'}">Artist Name</p>
+                                </a>
                             </div>
-
                             <div class="text-right">
                     <span class="text-xs text-emerald-400 font-medium" th:text="${like.getUserName() != null ? 'Review by ' + like.getUserName(): 'Review by UserName'}">
             Review by UserName

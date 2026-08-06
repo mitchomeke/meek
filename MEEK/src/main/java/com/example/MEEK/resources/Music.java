@@ -83,6 +83,9 @@ public abstract class Music {
     public void addReview(Review review){
         reviews.add(review);
     }
+    public List<Review> getReviews(){
+        return reviews;
+    }
 
     @Override
     public boolean equals(Object o) {

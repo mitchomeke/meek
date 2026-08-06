@@ -1,86 +1,123 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
   <meta charset="UTF-8">
-  <title th:text= "${receiver.getUserName() != null ? 'Messages with ' + receiver.getUserName() : 'Messages'}">Messages</title>
+  <title th:text="${receiver != null ? 'Messages with ' + receiver.userName : 'Messages'}">Messages</title>
+
+  <!-- Tailwind CSS CDN for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- SockJS and STOMP CDNs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
-<body>
+<body class="bg-gray-100 h-screen flex flex-col justify-center items-center p-4">
 
-<div id="chat-box" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+<!-- Chat Card Container -->
+<div class="w-full max-w-lg bg-white rounded-lg shadow-md flex flex-col h-[500px] border border-gray-200">
+
+  <!-- Chat Header -->
+  <div class="p-4 border-b bg-emerald-500 text-white rounded-t-lg font-semibold flex justify-between items-center">
+    <span th:text="${receiver != null ? 'Chatting with ' + receiver.userName : 'Select a Chat'}">Chatting with User</span>
+  </div>
+
+  <!-- Scrollable Chat Messages Container -->
+  <div id="chat-box" class="flex-1 p-4 overflow-y-auto space-y-3">
+
+    <!-- Render Past Chat History from Database via Thymeleaf -->
+    <th:block th:each="msg : ${chatHistory}">
+      <div th:class="${msg.sender.userName == sender ? 'flex flex-col items-end' : 'flex flex-col items-start'}">
+        <div th:class="${msg.sender.userName == sender ? 'bg-emerald-500 text-white p-3 rounded-lg max-w-[75%]' : 'bg-gray-200 text-gray-800 p-3 rounded-lg max-w-[75%]'}">
+          <strong th:text="${msg.sender.userName == sender ? 'You' : msg.sender.userName} + ':'" class="block text-xs opacity-75 mb-1">Sender:</strong>
+          <span th:text="${msg.content}">Message Content</span>
+        </div>
+      </div>
+    </th:block>
+
+  </div>
+
+  <!-- Message Input Bar -->
+  <div class="p-4 border-t flex gap-2 bg-gray-50 rounded-b-lg">
+    <input type="text" id="message-input" placeholder="Type a message..."
+           onkeydown="if(event.key === 'Enter') handleSend()"
+           class="flex-1 border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"/>
+    <button onclick="handleSend()"
+            class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-md text-sm font-medium transition">
+      Send
+    </button>
+  </div>
+
 </div>
 
 <script th:inline="javascript">
   let stompClient = null;
-  let currentUsername = 'user';
+  let currentUsername = /*[[${sender}]]*/ 'user';
+  let receiverUsername = /*[[${receiverName}]]*/ null;
 
   function connect(){
-    const socket = new SockJS('/ws');
+    let socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
 
     stompClient.connect({},function (frame){
-      console.log('Connected: '+frame);
+      console.log("Connected: "+frame);
 
-      stompClient.subscribe('/user/queue/messages',function (messageOutput){
+      stompClient.subscribe('/user/queue/messages', function (messageOutput){
         const message = JSON.parse(messageOutput.body);
         displayMessage(message.senderUsername,message.content);
       });
     });
   }
-  function sendMessage(receiverUserName,text){
+  function sendMessage(targetUser,text){
     if (stompClient && text.trim() !== ''){
       const msgDto = {
+        receiverUsername : targetUser,
         senderUsername : currentUsername,
-        receiverUsername : receiverUserName,
-        content : text
-      };
+        content : text,
+      }
       stompClient.send('/app/chat.sendMessage',{},JSON.stringify(msgDto));
       displayMessage(currentUsername,text);
     }
   }
+
+  function handleSend(){
+    const input = document.getElementById("message-input");
+    const text = input.value;
+
+    if (receiverUsername && text.trim() !== ''){
+      sendMessage(receiverUsername,text);
+      input.value = '';
+    }
+  }
+
   document.addEventListener("DOMContentLoaded",connect);
 
   function displayMessage(sender, content) {
     const chatBox = document.getElementById("chat-box");
-
-    // 1. Create a wrapper div for the message row
-    const messageElement = document.createElement("div");
-    messageElement.style.margin = "8px 0";
-    messageElement.style.display = "flex";
-    messageElement.style.flexDirection = "column";
-
-    // 2. Check if the message is from current logged-in user or the other user
     const isMe = (sender === currentUsername);
 
-    // 3. Align right for 'me', align left for the other person
-    messageElement.style.alignItems = isMe ? "flex-end" : "flex-start";
+    const wrapper = document.createElement("div");
+    wrapper.className = isMe ? "flex flex-col items-end" : "flex flex-col items-start";
 
-    // 4. Style the message bubble
     const bubble = document.createElement("div");
-    bubble.style.padding = "8px 12px";
-    bubble.style.borderRadius = "12px";
-    bubble.style.maxWidth = "70%";
-    bubble.style.wordBreak = "break-word";
+    bubble.className = isMe
+            ? "bg-emerald-500 text-white p-3 rounded-lg max-w-[75%]"
+            : "bg-gray-200 text-gray-800 p-3 rounded-lg max-w-[75%]";
 
-    if (isMe) {
-      bubble.style.backgroundColor = "#0084FF"; // Blue bubble for current user
-      bubble.style.color = "white";
-    } else {
-      bubble.style.backgroundColor = "#E4E6EB"; // Gray bubble for received messages
-      bubble.style.color = "black";
-    }
+    bubble.innerHTML = `<strong class="block text-xs opacity-75 mb-1">${isMe ? 'You' : sender}:</strong> ${content}`;
 
-    // 5. Add sender label and text inside the bubble
-    bubble.innerHTML = `<strong>${isMe ? 'You' : sender}:</strong> ${content}`;
+    wrapper.appendChild(bubble);
+    chatBox.appendChild(wrapper);
 
-    // 6. Append bubble to message element, and message element to chatBox
-    messageElement.appendChild(bubble);
-    chatBox.appendChild(messageElement);
-
-    // 7. Auto-scroll to the bottom of the chat box on new message
+    // Auto-scroll to the newest message
     chatBox.scrollTop = chatBox.scrollHeight;
   }
+
+  // Auto-scroll on initial page load for history messages
+  document.addEventListener("DOMContentLoaded", () => {
+    const chatBox = document.getElementById("chat-box");
+    chatBox.scrollTop = chatBox.scrollHeight;
+    connect();
+  });
 </script>
 
 </body>
