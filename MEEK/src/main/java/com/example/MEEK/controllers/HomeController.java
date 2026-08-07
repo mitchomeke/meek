@@ -7,6 +7,7 @@ import com.example.MEEK.repositories.UserRepository;
 import com.example.MEEK.resources.Music;
 import com.example.MEEK.resources.Review;
 import com.example.MEEK.resources.User;
+import com.example.MEEK.services.SpotifyService;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
