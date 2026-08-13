@@ -1,53 +1,121 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full bg-black">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title th:text="${receiver != null ? 'Messages with ' + receiver.userName : 'Messages'}">Messages</title>
 
-  <!-- Tailwind CSS CDN for styling -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Inter Font for modern Squarespace typography -->
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
 
   <!-- SockJS and STOMP CDNs -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+
+    /* Sleek custom scrollbar for dark theme */
+    #chat-box::-webkit-scrollbar {
+      width: 5px;
+    }
+    #chat-box::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    #chat-box::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 9999px;
+    }
+    #chat-box::-webkit-scrollbar-thumb:hover {
+      background: #3f3f46;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 h-screen flex flex-col justify-center items-center p-4">
+<body class="bg-black text-zinc-100 min-h-screen flex flex-col font-sans antialiased selection:bg-blue-600 selection:text-white relative overflow-x-hidden">
 
-<!-- Chat Card Container -->
-<div class="w-full max-w-lg bg-white rounded-lg shadow-md flex flex-col h-[500px] border border-gray-200">
+<!-- Subtle Ambient Radial Glow (Squarespace Style) -->
+<div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute top-1/2 -right-32 w-96 h-96 bg-blue-900/10 rounded-full blur-3xl pointer-events-none"></div>
 
-  <!-- Chat Header -->
-  <div class="p-4 border-b bg-emerald-500 text-white rounded-t-lg font-semibold flex justify-between items-center">
-    <span th:text="${receiver != null ? 'Chatting with ' + receiver.userName : 'Select a Chat'}">Chatting with User</span>
+<!-- 1. MODERN NAVIGATION BAR (Squarespace Style Sticky Header) -->
+<header class="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-black/75 backdrop-blur-xl transition-all">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <!-- Brand Logo -->
+    <a th:href="@{/home}" class="flex items-center gap-3 group">
+      <span class="text-xl font-black tracking-widest text-white uppercase bg-gradient-to-r from-white via-zinc-200 to-blue-500 bg-clip-text text-transparent">
+        MEEK
+      </span>
+      <span class="hidden sm:inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-950/60 border border-blue-800/40 text-blue-400">
+        Direct Chat
+      </span>
+    </a>
+
+    <!-- Back Link -->
+    <a th:href="@{/home}"
+       class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold rounded-full transition-all border border-zinc-800 hover:border-zinc-700 shadow-sm">
+      <span class="text-sm leading-none">&larr;</span> Back to Home
+    </a>
   </div>
+</header>
 
-  <!-- Scrollable Chat Messages Container -->
-  <div id="chat-box" class="flex-1 p-4 overflow-y-auto space-y-3">
+<main class="flex-1 max-w-2xl w-full mx-auto px-4 sm:px-6 py-8 flex flex-col justify-center items-center relative z-10">
 
-    <!-- Render Past Chat History from Database via Thymeleaf -->
-    <th:block th:each="msg : ${chatHistory}">
-      <div th:class="${msg.sender.userName == sender ? 'flex flex-col items-end' : 'flex flex-col items-start'}">
-        <div th:class="${msg.sender.userName == sender ? 'bg-emerald-500 text-white p-3 rounded-lg max-w-[75%]' : 'bg-gray-200 text-gray-800 p-3 rounded-lg max-w-[75%]'}">
-          <strong th:text="${msg.sender.userName == sender ? 'You' : msg.sender.userName} + ':'" class="block text-xs opacity-75 mb-1">Sender:</strong>
-          <span th:text="${msg.content}">Message Content</span>
+  <!-- CHAT CONTAINER CARD -->
+  <div class="w-full bg-zinc-950/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-zinc-800/80 flex flex-col h-[650px] overflow-hidden">
+
+    <!-- Chat Header -->
+    <div class="p-4 sm:p-5 border-b border-zinc-900 bg-zinc-950/80 backdrop-blur-md flex items-center justify-between shrink-0">
+      <div class="flex items-center gap-3.5">
+        <!-- Receiver Avatar Circle -->
+        <div class="w-10 h-10 rounded-full bg-blue-950 text-blue-400 border border-blue-800/40 flex items-center justify-center font-bold text-sm shadow-md shadow-blue-950/50">
+          <span th:text="${receiver != null ? #strings.substring(receiver.userName, 0, 1).toUpperCase() : '?'}">?</span>
+        </div>
+        <div>
+          <h2 class="font-bold text-white text-sm sm:text-base tracking-tight" th:text="${receiver != null ? receiver.userName : 'Select a Chat'}">User Name</h2>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+            <p class="text-[11px] text-blue-400 font-medium">Active Session</p>
+          </div>
         </div>
       </div>
-    </th:block>
+    </div>
+
+    <!-- Scrollable Chat Messages Container -->
+    <div id="chat-box" class="flex-1 p-5 overflow-y-auto space-y-4 bg-black/50">
+
+      <!-- Render Past Chat History from Database via Thymeleaf -->
+      <th:block th:each="msg : ${chatHistory}">
+        <div th:class="${msg.sender.userName == sender ? 'flex flex-col items-end' : 'flex flex-col items-start'}">
+          <div th:class="${msg.sender.userName == sender ? 'bg-blue-600 text-white p-3.5 rounded-2xl rounded-br-none max-w-[80%] shadow-lg shadow-blue-600/10' : 'bg-zinc-900 text-zinc-100 border border-zinc-800/80 p-3.5 rounded-2xl rounded-bl-none max-w-[80%]'}">
+            <strong th:text="${msg.sender.userName == sender ? 'You' : msg.sender.userName}"
+                    th:class="${msg.sender.userName == sender ? 'block text-[10px] uppercase font-bold tracking-wider text-blue-200 mb-1' : 'block text-[10px] uppercase font-bold tracking-wider text-blue-400 mb-1'}">Sender</strong>
+            <span class="text-sm leading-relaxed" th:text="${msg.content}">Message Content</span>
+          </div>
+        </div>
+      </th:block>
+
+    </div>
+
+    <!-- Message Input Bar -->
+    <div class="p-4 border-t border-zinc-900 flex gap-2.5 bg-zinc-950 shrink-0">
+      <input type="text" id="message-input" placeholder="Type a message..."
+             onkeydown="if(event.key === 'Enter') handleSend()"
+             class="flex-1 bg-black border border-zinc-800 rounded-full px-5 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500 transition-all"/>
+      <button onclick="handleSend()"
+              class="bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-blue-600/25 shrink-0 flex items-center justify-center gap-2">
+        <span>Send</span>
+        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+          <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+        </svg>
+      </button>
+    </div>
 
   </div>
 
-  <!-- Message Input Bar -->
-  <div class="p-4 border-t flex gap-2 bg-gray-50 rounded-b-lg">
-    <input type="text" id="message-input" placeholder="Type a message..."
-           onkeydown="if(event.key === 'Enter') handleSend()"
-           class="flex-1 border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"/>
-    <button onclick="handleSend()"
-            class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-md text-sm font-medium transition">
-      Send
-    </button>
-  </div>
-
-</div>
+</main>
 
 <script th:inline="javascript">
   let stompClient = null;
@@ -58,24 +126,25 @@
     let socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
 
-    stompClient.connect({},function (frame){
-      console.log("Connected: "+frame);
+    stompClient.connect({}, function (frame){
+      console.log("Connected: " + frame);
 
       stompClient.subscribe('/user/queue/messages', function (messageOutput){
         const message = JSON.parse(messageOutput.body);
-        displayMessage(message.senderUsername,message.content);
+        displayMessage(message.senderUsername, message.content);
       });
     });
   }
-  function sendMessage(targetUser,text){
+
+  function sendMessage(targetUser, text){
     if (stompClient && text.trim() !== ''){
       const msgDto = {
         receiverUsername : targetUser,
         senderUsername : currentUsername,
         content : text,
       }
-      stompClient.send('/app/chat.sendMessage',{},JSON.stringify(msgDto));
-      displayMessage(currentUsername,text);
+      stompClient.send('/app/chat.sendMessage', {}, JSON.stringify(msgDto));
+      displayMessage(currentUsername, text);
     }
   }
 
@@ -84,12 +153,10 @@
     const text = input.value;
 
     if (receiverUsername && text.trim() !== ''){
-      sendMessage(receiverUsername,text);
+      sendMessage(receiverUsername, text);
       input.value = '';
     }
   }
-
-  document.addEventListener("DOMContentLoaded",connect);
 
   function displayMessage(sender, content) {
     const chatBox = document.getElementById("chat-box");
@@ -100,11 +167,21 @@
 
     const bubble = document.createElement("div");
     bubble.className = isMe
-            ? "bg-emerald-500 text-white p-3 rounded-lg max-w-[75%]"
-            : "bg-gray-200 text-gray-800 p-3 rounded-lg max-w-[75%]";
+            ? "bg-blue-600 text-white p-3.5 rounded-2xl rounded-br-none max-w-[80%] shadow-lg shadow-blue-600/10"
+            : "bg-zinc-900 text-zinc-100 border border-zinc-800/80 p-3.5 rounded-2xl rounded-bl-none max-w-[80%]";
 
-    bubble.innerHTML = `<strong class="block text-xs opacity-75 mb-1">${isMe ? 'You' : sender}:</strong> ${content}`;
+    const senderHeader = document.createElement("strong");
+    senderHeader.className = isMe
+            ? "block text-[10px] uppercase font-bold tracking-wider text-blue-200 mb-1"
+            : "block text-[10px] uppercase font-bold tracking-wider text-blue-400 mb-1";
+    senderHeader.textContent = isMe ? "You" : sender;
 
+    const contentSpan = document.createElement("span");
+    contentSpan.className = "text-sm leading-relaxed";
+    contentSpan.textContent = content;
+
+    bubble.appendChild(senderHeader);
+    bubble.appendChild(contentSpan);
     wrapper.appendChild(bubble);
     chatBox.appendChild(wrapper);
 
@@ -112,10 +189,12 @@
     chatBox.scrollTop = chatBox.scrollHeight;
   }
 
-  // Auto-scroll on initial page load for history messages
+  // Auto-scroll on initial page load for history messages & connect socket
   document.addEventListener("DOMContentLoaded", () => {
     const chatBox = document.getElementById("chat-box");
-    chatBox.scrollTop = chatBox.scrollHeight;
+    if (chatBox) {
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
     connect();
   });
 </script>

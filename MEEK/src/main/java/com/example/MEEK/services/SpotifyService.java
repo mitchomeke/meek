@@ -34,7 +34,7 @@ public class SpotifyService {
     public SpotifySearchResponse searchQuery(String query){
         String token = getAccessCode();
         return restClient.get().uri(
-                "http://api.spotify.com/v1/search/?q={query}&type=track&limit=10",query
+                "https://api.spotify.com/v1/search?q={query}&type=track&limit=10",query
         ).header("Authorization","Bearer "+token)
                 .retrieve()
                 .body(SpotifySearchResponse.class);

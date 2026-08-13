@@ -1,48 +1,104 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full bg-black">
 <head>
     <meta charset="UTF-8">
-    <title>Spotify Track Search</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEEK - Track Search</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font for modern Squarespace typography -->
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen p-8">
+<body class="bg-black text-zinc-100 min-h-screen font-sans antialiased selection:bg-blue-600 selection:text-white relative overflow-x-hidden">
 
-<div class="max-w-2xl mx-auto space-y-6">
-    <h1 class="text-3xl font-bold text-emerald-400">Search Songs on Spotify</h1>
+<!-- Subtle Ambient Radial Glow (Squarespace Style) -->
+<div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute top-1/2 -right-32 w-96 h-96 bg-blue-900/10 rounded-full blur-3xl pointer-events-none"></div>
 
-    <!-- Add the search form here too so users can search again! -->
-    <form action="/search" method="get" class="flex gap-2">
-        <input type="text" name="query" th:value="${query}" placeholder="Search song or artist..."
-               class="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-emerald-400"/>
-        <button type="submit" class="px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-md transition">
-            Search
-        </button>
-    </form>
+<!-- 1. MODERN NAVIGATION BAR (Squarespace Style Sticky Header) -->
+<header class="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-black/75 backdrop-blur-xl transition-all">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <!-- Brand Logo -->
+        <a th:href="@{/home}" class="flex items-center gap-3 group">
+            <span class="text-xl font-black tracking-widest text-white uppercase bg-gradient-to-r from-white via-zinc-200 to-blue-500 bg-clip-text text-transparent">
+                MEEK
+            </span>
+            <span class="hidden sm:inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-950/60 border border-blue-800/40 text-blue-400">
+                Search
+            </span>
+        </a>
 
-    <!-- Search Results -->
-    <div th:if="${tracks != null}" class="space-y-3">
-        <div th:each="track : ${tracks}" class="p-3 bg-gray-800 rounded-lg flex items-center gap-4 border border-gray-700">
+        <!-- Back Link -->
+        <a th:href="@{/home}"
+           class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold rounded-full transition-all border border-zinc-800 hover:border-zinc-700 shadow-sm">
+            <span class="text-sm leading-none">&larr;</span> Back to Home
+        </a>
+    </div>
+</header>
+
+<main class="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-8 relative z-10">
+
+    <!-- 2. HERO SEARCH CONTAINER -->
+    <div class="relative overflow-hidden bg-gradient-to-b from-zinc-900/90 to-zinc-950 p-6 sm:p-8 rounded-3xl border border-zinc-800/80 shadow-2xl space-y-6">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-blue-500 block mb-1">Catalog Explorer</span>
+            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">Search Music</h1>
+            <p class="text-zinc-400 text-sm mt-1.5 font-medium">Find your favorite tracks, singles, and albums across the global library.</p>
+        </div>
+
+        <!-- Search Form -->
+        <form action="/search" method="get" class="flex gap-2.5">
+            <div class="relative flex-1">
+                <input type="text" name="query" th:value="${query}" placeholder="Search song or artist..."
+                       class="w-full pl-4 pr-4 py-3 bg-black/80 border border-zinc-800 rounded-full text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-blue-500 transition-all"/>
+            </div>
+            <button type="submit"
+                    class="px-6 py-3 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-lg shadow-blue-600/25 transition-all shrink-0 flex items-center gap-2">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <span>Search</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- 3. SEARCH RESULTS LIST -->
+    <div th:if="${tracks != null}" class="space-y-4">
+
+        <div class="flex items-center justify-between border-b border-zinc-900 pb-2 px-1">
+            <span class="text-xs font-bold uppercase tracking-wider text-zinc-400">Search Results</span>
+            <span class="text-xs text-blue-400 font-semibold" th:text="${#lists.size(tracks)} + ' tracks found'">0 tracks found</span>
+        </div>
+
+        <div th:each="track : ${tracks}"
+             class="p-4 bg-zinc-950/90 hover:bg-zinc-900/80 rounded-2xl flex items-center gap-4 border border-zinc-800/80 transition-all duration-200 shadow-xl group">
 
             <!-- Album Art -->
             <img th:if="${!#lists.isEmpty(track.spotifyAlbum().spotifyImages())}"
                  th:src="${track.spotifyAlbum().spotifyImages()[0].url}"
-                 alt="Cover" class="w-12 h-12 rounded shrink-0 object-cover"/>
+                 alt="Cover" class="w-14 h-14 rounded-xl shrink-0 object-cover border border-zinc-800 shadow-md group-hover:border-blue-500/50 transition-all"/>
 
+            <!-- Track Info -->
             <div class="flex-1 min-w-0">
-                <h3 class="font-bold text-white truncate" th:text="${track.name}">Song Name</h3>
-                <p class="text-sm text-gray-400 truncate" th:text="${track.spotifyArtists()[0].name}">Artist Name</p>
+                <h3 class="font-bold text-white text-sm sm:text-base truncate group-hover:text-blue-400 transition" th:text="${track.name}">Song Name</h3>
+                <p class="text-xs text-zinc-400 truncate mt-0.5 font-medium" th:text="${track.spotifyArtists()[0].name}">Artist Name</p>
             </div>
 
-            <!-- Action: Write Review for this Spotify Track -->
+            <!-- Action Button -->
             <a th:href="@{/allreviews(musicId=${track.id})}"
-               class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold rounded transition">
-                View / Write Reviews
+               class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-full transition-all shadow-md shadow-blue-600/20 shrink-0">
+                Reviews
             </a>
 
         </div>
     </div>
 
-</div>
+</main>
 
 </body>
 </html>

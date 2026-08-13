@@ -1,50 +1,91 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full bg-black">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEEK - Log In</title>
-    <!-- Modern styling via Tailwind CDN -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font for modern Squarespace typography -->
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-900 text-white flex items-center justify-center min-h-screen">
+<body class="bg-black text-zinc-100 min-h-screen flex items-center justify-center p-4 font-sans antialiased selection:bg-blue-600 selection:text-white relative overflow-hidden">
 
-<div class="bg-slate-800 p-8 rounded-lg shadow-xl w-full max-w-md border border-slate-700">
-    <h2 class="text-2xl font-bold text-center text-emerald-400 mb-6">Log in to MEEK</h2>
+<!-- Subtle Ambient Radial Glow (Squarespace Style) -->
+<div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-900/10 rounded-full blur-3xl pointer-events-none"></div>
 
+<!-- MAIN CARD CONTAINER -->
+<div class="relative z-10 w-full max-w-md bg-zinc-950/90 backdrop-blur-2xl p-8 sm:p-10 rounded-3xl border border-zinc-800/80 shadow-2xl shadow-blue-950/30 space-y-6">
 
-
-    <!-- Display error message if login failed -->
-    <div th:if="${param.error}" class="bg-red-500/20 border border-red-500 text-red-200 p-3 rounded mb-4 text-sm text-center">
-        Invalid username or password.
+    <!-- BRAND HEADER -->
+    <div class="text-center space-y-2">
+        <a th:href="@{/}" class="inline-block">
+            <span class="text-3xl font-black tracking-widest text-white uppercase bg-gradient-to-r from-white via-zinc-200 to-blue-500 bg-clip-text text-transparent">
+                MEEK
+            </span>
+        </a>
+        <h2 class="text-xl font-bold tracking-tight text-white">Welcome Back</h2>
+        <p class="text-zinc-400 text-xs">Enter your credentials to access your listener account.</p>
     </div>
 
-    <!-- Display message if user logged out -->
-    <div th:if="${param.logout}" class="bg-blue-500/20 border border-blue-500 text-blue-200 p-3 rounded mb-4 text-sm text-center">
-        You have been logged out.
+    <!-- NOTIFICATION ALERTS -->
+
+    <!-- Error Alert -->
+    <div th:if="${param.error}" class="bg-red-950/40 border border-red-900/50 text-red-300 p-3.5 rounded-xl text-xs font-medium text-center backdrop-blur-sm flex items-center justify-center gap-2">
+        <svg class="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span>Invalid username or password.</span>
     </div>
 
-    <!-- Shows up when redirected from registration: /login?registered -->
-    <div th:if="${param.registered}" class="bg-emerald-500/20 border border-emerald-500 text-emerald-200 p-3 rounded mb-4 text-sm text-center">
-        Account created successfully!.
+    <!-- Logout Alert -->
+    <div th:if="${param.logout}" class="bg-blue-950/40 border border-blue-900/50 text-blue-300 p-3.5 rounded-xl text-xs font-medium text-center backdrop-blur-sm flex items-center justify-center gap-2">
+        <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span>You have been logged out successfully.</span>
     </div>
 
-    <form th:action="@{/login}" method="post" class="space-y-4">
+    <!-- Registration Success Alert -->
+    <div th:if="${param.registered}" class="bg-blue-950/40 border border-blue-800/60 text-blue-300 p-3.5 rounded-xl text-xs font-medium text-center backdrop-blur-sm flex items-center justify-center gap-2">
+        <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <span>Account created successfully! Please sign in.</span>
+    </div>
+
+    <!-- FORM SECTION -->
+    <form th:action="@{/login}" method="post" class="space-y-5">
         <div>
-            <label class="block text-sm font-medium mb-1 text-slate-300">Username</label>
-            <input type="text" name="username" required
-                   class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded focus:outline-none focus:border-emerald-400">
+            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-2">Username</label>
+            <input type="text" name="username" required placeholder="Enter username"
+                   class="w-full px-4 py-3 bg-black/80 border border-zinc-800 text-white rounded-xl text-sm placeholder-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200">
         </div>
 
         <div>
-            <label class="block text-sm font-medium mb-1 text-slate-300">Password</label>
-            <input type="password" name="password" required
-                   class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded focus:outline-none focus:border-emerald-400">
+            <label class="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-2">Password</label>
+            <input type="password" name="password" required placeholder="••••••••"
+                   class="w-full px-4 py-3 bg-black/80 border border-zinc-800 text-white rounded-xl text-sm placeholder-zinc-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200">
         </div>
 
         <button type="submit"
-                class="w-full py-2 bg-emerald-500 hover:bg-emerald-600 font-semibold rounded transition duration-200">
+                class="w-full py-3 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg shadow-blue-600/25 hover:shadow-blue-500/40 transition-all duration-200">
             Sign In
         </button>
     </form>
+
+    <!-- FOOTER NAV -->
+    <div class="pt-2 text-center border-t border-zinc-900">
+        <p class="text-xs text-zinc-500">
+            Don't have an account?
+            <a th:href="@{/register}" class="text-blue-400 hover:text-blue-300 font-semibold hover:underline transition">Create one</a>
+        </p>
+    </div>
+
 </div>
 
 </body>

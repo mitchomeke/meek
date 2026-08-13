@@ -1,62 +1,99 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full bg-slate-900">
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full bg-black">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${user.userName != null ? 'Friends of ' + user.userName : 'Friends'}">Friends</title>
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font for modern Squarespace typography -->
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="min-h-full bg-slate-900 text-slate-100 flex justify-center py-10 px-4 sm:px-6 lg:px-8">
+<body class="bg-black text-zinc-100 min-h-screen font-sans antialiased selection:bg-blue-600 selection:text-white relative overflow-x-hidden">
 
-<div class="w-full max-w-2xl space-y-6">
+<!-- Subtle Ambient Radial Glow (Squarespace Style) -->
+<div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute top-1/2 -right-32 w-96 h-96 bg-blue-900/10 rounded-full blur-3xl pointer-events-none"></div>
 
-    <!-- Top Navigation -->
-    <div>
+<!-- 1. MODERN NAVIGATION BAR (Squarespace Style Sticky Header) -->
+<header class="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-black/75 backdrop-blur-xl transition-all">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <!-- Brand Logo -->
+        <a th:href="@{/home}" class="flex items-center gap-3 group">
+            <span class="text-xl font-black tracking-widest text-white uppercase bg-gradient-to-r from-white via-zinc-200 to-blue-500 bg-clip-text text-transparent">
+                MEEK
+            </span>
+            <span class="hidden sm:inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-950/60 border border-blue-800/40 text-blue-400">
+                Network
+            </span>
+        </a>
+
+        <!-- Back Link -->
         <a th:href="@{/home}"
-           class="inline-flex items-center text-emerald-400 hover:text-emerald-300 hover:underline text-sm font-medium transition group gap-1.5">
-            <span class="group-hover:-translate-x-0.5 transition-transform">&larr;</span>
-            Back to Home
+           class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold rounded-full transition-all border border-zinc-800 hover:border-zinc-700 shadow-sm">
+            <span class="text-sm leading-none">&larr;</span> Back to Home
         </a>
     </div>
+</header>
 
-    <!-- Main Content Card -->
-    <div class="bg-slate-800 p-6 sm:p-8 rounded-xl border border-slate-700 shadow-xl space-y-6">
+<main class="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-8 relative z-10">
 
-        <!-- Header Section -->
-        <div class="flex items-center justify-between border-b border-slate-700/80 pb-4">
+    <!-- 2. HERO BANNER -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-b from-zinc-900/90 to-zinc-950 p-6 sm:p-8 border border-zinc-800/80 shadow-2xl">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-slate-100 flex items-center gap-2">
-                    <span>Friends</span>
+                <span class="text-xs font-bold uppercase tracking-widest text-blue-500 block mb-1">Social Circle</span>
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white flex items-center gap-3">
+                    <span>Connections</span>
                     <span th:if="${friends != null}"
-                          class="text-xs font-semibold px-2.5 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full"
+                          class="text-xs font-bold px-3 py-1 bg-blue-950 text-blue-400 border border-blue-800/40 rounded-full"
                           th:text="${#lists.size(friends)}">0</span>
                 </h1>
-                <p class="text-xs text-slate-400 mt-1">
-                    People connected with <span class="text-slate-200 font-medium" th:text="${user.userName}">Username</span>
+                <p class="text-zinc-400 text-sm mt-1.5 font-medium">
+                    People connected with <span class="text-white font-semibold" th:text="${user.userName}">Username</span>
                 </p>
             </div>
+            <a th:href="@{/search}"
+               class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-full transition shadow-lg shadow-blue-600/25 shrink-0 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                Find Listeners
+            </a>
+        </div>
+    </div>
+
+    <!-- 3. MAIN CONTENT CONTAINER -->
+    <div class="bg-zinc-950 p-6 sm:p-8 rounded-3xl border border-zinc-800/80 shadow-2xl space-y-6">
+
+        <div class="border-b border-zinc-900 pb-4">
+            <h2 class="text-lg font-bold text-white tracking-tight">Your Network List</h2>
+            <p class="text-zinc-400 text-xs mt-0.5">Explore profiles and message your friends directly.</p>
         </div>
 
         <!-- Friends List Grid -->
-        <ul th:if="${friends != null and !friends.isEmpty()}" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <ul th:if="${friends != null and !friends.isEmpty()}" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <li th:each="friend : ${friends}">
                 <a th:href="@{/users/{id}/profile(id=${friend.id})}"
-                   class="flex items-center p-3.5 bg-slate-700/40 hover:bg-slate-700/80 rounded-lg border border-slate-700 hover:border-emerald-500/50 transition group shadow-sm">
+                   class="flex items-center p-4 bg-zinc-900/50 hover:bg-zinc-900 rounded-2xl border border-zinc-800/80 hover:border-blue-500/40 transition-all duration-200 group shadow-sm">
 
                     <!-- User Avatar Circle -->
-                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 group-hover:bg-emerald-500 group-hover:text-white flex items-center justify-center font-bold mr-3 shrink-0 transition">
+                    <div class="w-11 h-11 rounded-full bg-blue-950 text-blue-400 border border-blue-800/40 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center font-bold mr-3.5 shrink-0 transition-all duration-200 shadow-md shadow-blue-950/50">
                         <span th:text="${#strings.substring(friend.userName, 0, 1).toUpperCase()}">F</span>
                     </div>
 
                     <!-- User Info -->
-                    <div class="truncate flex-1">
-                        <p class="font-semibold text-sm text-slate-100 group-hover:text-emerald-400 truncate transition"
+                    <div class="truncate flex-1 min-w-0">
+                        <p class="font-bold text-sm text-white group-hover:text-blue-400 truncate transition"
                            th:text="${friend.userName}">Friend Name</p>
-                        <span class="text-xs text-slate-400 group-hover:text-slate-300 flex items-center gap-1 transition">
-                                View Profile
-                                <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
-                            </span>
+                        <span class="text-xs text-zinc-500 group-hover:text-zinc-300 flex items-center gap-1 transition font-medium mt-0.5">
+                            View Profile
+                            <span class="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
+                        </span>
                     </div>
                 </a>
             </li>
@@ -64,19 +101,19 @@
 
         <!-- Empty State -->
         <div th:if="${friends == null or friends.isEmpty()}"
-             class="text-center py-10 px-4 bg-slate-900/40 rounded-lg border border-slate-700/60 space-y-3">
-            <div class="w-12 h-12 rounded-full bg-slate-700/60 text-slate-400 flex items-center justify-center mx-auto text-xl">
+             class="text-center py-16 px-4 space-y-3">
+            <div class="w-12 h-12 rounded-2xl bg-zinc-900 text-zinc-600 flex items-center justify-center mx-auto text-xl border border-zinc-800">
                 👥
             </div>
-            <h3 class="text-slate-200 font-medium text-sm">No Friends Added Yet</h3>
-            <p class="text-slate-400 text-xs max-w-sm mx-auto">
-                Search for users in the network to build your connections list.
+            <h3 class="text-zinc-300 font-bold text-sm">No Friends Added Yet</h3>
+            <p class="text-zinc-500 text-xs max-w-xs mx-auto">
+                Search for users in the network to build your connections list and see their reviews.
             </p>
         </div>
 
     </div>
 
-</div>
+</main>
 
 </body>
 </html>
