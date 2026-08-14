@@ -2,6 +2,7 @@ package com.example.MEEK.controllers;
 
 import com.example.MEEK.ChatMessageDto;
 import com.example.MEEK.repositories.MessagesRepository;
+import com.example.MEEK.repositories.NotificationRepository;
 import com.example.MEEK.repositories.UserRepository;
 import com.example.MEEK.resources.Message;
 import com.example.MEEK.resources.User;
@@ -33,6 +34,9 @@ public class MessagesController {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
+    @Autowired
+    private NotificationRepository notificationRepository;
+
     @MessageMapping("/chat.sendMessage")
     public void sendMessage(Principal principal, @Payload ChatMessageDto dto){
         User sender = userRepository.findByUserName(principal.getName()).orElseThrow();
@@ -43,15 +47,20 @@ public class MessagesController {
         message.setSender(sender);
         message.setContent(dto.getContent());
         message.setTimestamp(LocalDateTime.now());
-        messagesRepository.save(message);
+        notificationRepository.save(message);
 
-        messagingTemplate.convertAndSendToUser(dto.getReceiverUsername(),"/queue/messages",dto);}
+        messagingTemplate.convertAndSendToUser(dto.getReceiverUsername(),"/queue/messages",dto);
+        receiver.addNotifications(message);
+        userRepository.save(receiver);
+
+    }
 
     @GetMapping("/messages")
     public String openChat(@RequestParam(required = false) String recipient,
-                           Principal principal, Model model){
+                           @RequestParam(required = false) String messenger,
+                            Model model){
         User receiver = userRepository.findByUserName(recipient).orElseThrow();
-        User sender = userRepository.findByUserName(principal.getName()).orElseThrow();
+        User sender = userRepository.findByUserName(messenger).orElseThrow();
 
         List<Message> chatHistory = messagesRepository.findAll().stream().filter(
                 m -> (m.getReceiver().getUserName().equals(recipient) &&

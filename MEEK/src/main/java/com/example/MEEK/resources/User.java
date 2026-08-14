@@ -37,6 +37,11 @@ public class User {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<Review> likes = new ArrayList<>();
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JsonIgnore
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<Notification> notifications = new ArrayList<>();
+
     private String encryptedPassword;
 
     public User(){}
@@ -51,10 +56,6 @@ public class User {
 
     public String getUserName() {
         return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 
     public byte[] getDisplayPhoto() {
@@ -107,6 +108,16 @@ public class User {
     }
     public List<Review> getLikes(){
         return likes;
+    }
+
+    public List<Notification> getNotifications() {
+        return notifications;
+    }
+    public void addNotifications(Notification notification){
+        notifications.add(notification);
+    }
+    public void removeNotification(Notification notification){
+        notifications.remove(notification);
     }
 
     @Override

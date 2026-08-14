@@ -5,10 +5,7 @@ import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "Reviews")
-public class Review {
-    @Id
-    @GeneratedValue private Long id;
+public class Review extends Notification {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -43,11 +40,6 @@ public class Review {
         user.addReview(this);
         music.addReview(this);
     }
-
-    public Long getId() {
-        return id;
-    }
-
     public String getUserName(){
         return userName;
     }

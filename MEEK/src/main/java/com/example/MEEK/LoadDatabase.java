@@ -32,6 +32,7 @@ public class LoadDatabase {
                                    UserRepository userRepository,
                                    MusicRepository musicRepository,
                                    ReviewRepository reviewRepository,
+                                   NotificationRepository notificationRepository,
                                    PasswordEncoder passwordEncoder) throws IOException {
 
         ClassPathResource resource = new ClassPathResource("images/xperiment.png");
@@ -112,28 +113,38 @@ public class LoadDatabase {
 
             // Review 1: Mitch reviews "CHIHIRO"
             Review r1 = new Review(mitch, chihiro, 5, "Absolute masterpiece! Production on this track is insane.");
-            reviewRepository.save(r1);
+          //  reviewRepository.save(r1);
+            notificationRepository.save(r1);
 
             // Review 2: Daisy reviews "Pop Out"
             Review r2 = new Review(daisy, popOut, 4, "Kevin Abstract never fails to deliver a solid hook.");
-            reviewRepository.save(r2);
+           // reviewRepository.save(r2);
+            notificationRepository.save(r2);
 
             // Review 3: Angela reviews "Sticky"
             Review r3 = new Review(angela, sticky, 5, "Best feature line-up on any track this year!");
-            reviewRepository.save(r3);
+        //    reviewRepository.save(r3);
+            notificationRepository.save(r3);
 
             // Review 4: Alex reviews "COCAINE NOSE"
             Review r4 = new Review(alex, cocaineNose, 3, "Fun track, but feeling a bit repetitive after a few listens.");
-            reviewRepository.save(r4);
+         //   reviewRepository.save(r4);
+            notificationRepository.save(r4);
 
             // Add some initial likes between users
-            mitch.likeReview(r3); // Mitch likes Angela's review
-            daisy.likeReview(r1); // Daisy likes Mitch's review
+            // Mitch likes Angela's review
+            mitch.likeReview(r3);
+            angela.addNotifications(r3);
+            // Daisy likes Mitch's review
+            daisy.likeReview(r1);
+            mitch.addNotifications(r1);
+
             sarah.likeReview(r1); // Sarah likes Mitch's review
 
             userRepository.save(mitch);
             userRepository.save(daisy);
             userRepository.save(sarah);
+            userRepository.save(angela);
 
             log.info("Database Initialization Complete!");
         };

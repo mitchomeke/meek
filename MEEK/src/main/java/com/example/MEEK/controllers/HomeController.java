@@ -2,9 +2,11 @@ package com.example.MEEK.controllers;
 
 import com.example.MEEK.exceptions.UserNotFound;
 import com.example.MEEK.repositories.MusicRepository;
+import com.example.MEEK.repositories.NotificationRepository;
 import com.example.MEEK.repositories.ReviewRepository;
 import com.example.MEEK.repositories.UserRepository;
 import com.example.MEEK.resources.Music;
+import com.example.MEEK.resources.Notification;
 import com.example.MEEK.resources.Review;
 import com.example.MEEK.resources.User;
 import com.example.MEEK.services.SpotifyService;
@@ -23,11 +25,13 @@ public class HomeController {
     private final UserRepository userRepository;
     private final MusicRepository musicRepository;
     private final ReviewRepository reviewRepository;
+    private final NotificationRepository notificationRepository;
 
-    public HomeController(UserRepository userRepository, MusicRepository musicRepository, ReviewRepository reviewRepository) {
+    public HomeController(UserRepository userRepository, MusicRepository musicRepository, ReviewRepository reviewRepository, NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.musicRepository = musicRepository;
         this.reviewRepository = reviewRepository;
+        this.notificationRepository = notificationRepository;
     }
 
 
@@ -51,6 +55,7 @@ public class HomeController {
         model.addAttribute("musicOfReviews",user.getReviews().stream().map(
                 Review::getMusic
         ).toList());
+        model.addAttribute("notifications",user.getNotifications());
         return "home";
     }
 
@@ -84,19 +89,35 @@ public class HomeController {
 
     @PostMapping("/home/explore/like")
     public String like(Principal principal, @RequestParam("reviewId") Long reviewId){
-        User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
         Review review = reviewRepository.findById(reviewId).orElseThrow();
+
+
+        User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
+        User otherUser = review.getUser();
+
+        review.setReceiver(otherUser);
+        review.setSender(loggedInUser);
+
         loggedInUser.likeReview(review);
+        otherUser.addNotifications(review);
+
         userRepository.save(loggedInUser);
+        userRepository.save(otherUser);
+        notificationRepository.save(review);
 
         return "redirect:/home";
     }
     @PostMapping("/home/explore/unlike")
     public String unlike( Principal principal, @RequestParam("reviewId") Long reviewId){
-        User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
         Review review = reviewRepository.findById(reviewId).orElseThrow();
+        User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
+        User otherUser = review.getUser();
+
         loggedInUser.removeLike(review);
+        otherUser.removeNotification(review);
+
         userRepository.save(loggedInUser);
+        userRepository.save(otherUser);
 
         return "redirect:/home";
     }
