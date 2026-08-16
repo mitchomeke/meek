@@ -47,7 +47,7 @@
 
         <!-- Action Buttons (Message + Follow / Unfollow) -->
         <div class="relative z-10 flex items-center justify-between gap-3 mb-6">
-            <a th:href="@{/messages(recipient=${profileUser.getUserName()})}"
+            <a th:href="@{/messages(recipient=${profileUser.getUserName()},messenger=${loggedInUser.getUserName()})}"
                class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-full transition-all shadow-lg shadow-blue-600/25 inline-flex items-center gap-2 shrink-0">
                 <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
@@ -162,25 +162,25 @@
             <div th:each="like : ${userLikes}" class="p-5 bg-zinc-900/50 hover:bg-zinc-900/80 rounded-2xl border border-zinc-800/80 transition-all duration-200 space-y-3">
                 <div class="flex justify-between items-start gap-3">
                     <div>
-                        <h3 class="font-bold text-white text-base" th:text="${like.music != null ? like.music.musicName : 'Song Title'}">Song Title</h3>
-                        <p class="text-xs text-zinc-400 font-medium" th:text="${like.music != null ? like.music.artistName : 'Artist Name'}">Artist Name</p>
+                        <h3 class="font-bold text-white text-base" th:text="${like.getReview().music != null ? like.getReview().music.musicName : 'Song Title'}">Song Title</h3>
+                        <p class="text-xs text-zinc-400 font-medium" th:text="${like.getReview().music != null ? like.getReview().music.artistName : 'Artist Name'}">Artist Name</p>
                     </div>
 
                     <div class="flex items-center space-x-3 shrink-0">
                         <span class="text-xs text-blue-400 font-semibold px-2.5 py-1 rounded-full bg-blue-950/40 border border-blue-800/30"
-                              th:text="${like.getUserName() != null ? 'Review by ' + like.getUserName(): 'Review by Anonymous'}">
+                              th:text="${like.getReceiver().getUserName() != null ? 'Review by ' + like.getReceiver().getUserName(): 'Review by Anonymous'}">
                             Review by UserName
                         </span>
                         <!-- Star Rating Display -->
                         <div class="text-amber-400 text-xs tracking-widest font-bold">
-                            <span th:text="${'★'.repeat(like.rating)}">★★★★★</span>
+                            <span th:text="${'★'.repeat(like.getReview().rating)}">★★★★★</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Review Description -->
                 <p class="text-sm text-zinc-300 bg-black/40 p-3.5 rounded-xl border border-zinc-800/50 italic leading-relaxed"
-                   th:text="${like.description}">Review notes go here...</p>
+                   th:text="${like.getReview().description}">Review notes go here...</p>
             </div>
         </div>
 

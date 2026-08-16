@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -56,7 +57,8 @@ public class LoadDatabase {
             for (User user : allUsers) {
                 for (User other : allUsers) {
                     if (!user.getId().equals(other.getId())) {
-                        user.addMeeker(other);
+                        Follow follow = new Follow(user,other);
+                        notificationRepository.save(follow);
                     }
                 }
                 userRepository.save(user);
@@ -113,33 +115,27 @@ public class LoadDatabase {
 
             // Review 1: Mitch reviews "CHIHIRO"
             Review r1 = new Review(mitch, chihiro, 5, "Absolute masterpiece! Production on this track is insane.");
-          //  reviewRepository.save(r1);
-            notificationRepository.save(r1);
+            reviewRepository.save(r1);
 
             // Review 2: Daisy reviews "Pop Out"
             Review r2 = new Review(daisy, popOut, 4, "Kevin Abstract never fails to deliver a solid hook.");
-           // reviewRepository.save(r2);
-            notificationRepository.save(r2);
+            reviewRepository.save(r2);
 
             // Review 3: Angela reviews "Sticky"
             Review r3 = new Review(angela, sticky, 5, "Best feature line-up on any track this year!");
-        //    reviewRepository.save(r3);
-            notificationRepository.save(r3);
+            reviewRepository.save(r3);
 
             // Review 4: Alex reviews "COCAINE NOSE"
             Review r4 = new Review(alex, cocaineNose, 3, "Fun track, but feeling a bit repetitive after a few listens.");
-         //   reviewRepository.save(r4);
-            notificationRepository.save(r4);
+            reviewRepository.save(r4);
 
             // Add some initial likes between users
             // Mitch likes Angela's review
-            mitch.likeReview(r3);
-            angela.addNotifications(r3);
+            notificationRepository.save(new Like(mitch,angela,r3, Instant.now()));
             // Daisy likes Mitch's review
-            daisy.likeReview(r1);
-            mitch.addNotifications(r1);
-
-            sarah.likeReview(r1); // Sarah likes Mitch's review
+            notificationRepository.save(new Like(daisy,mitch,r1,Instant.now()));
+            // Sarah likes Mitch's review
+            notificationRepository.save(new Like(sarah,mitch,r1,Instant.now()));
 
             userRepository.save(mitch);
             userRepository.save(daisy);

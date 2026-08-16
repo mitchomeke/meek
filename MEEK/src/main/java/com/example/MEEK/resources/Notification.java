@@ -1,6 +1,9 @@
 package com.example.MEEK.resources;
 
+import com.example.MEEK.repositories.NotificationRepository;
 import jakarta.persistence.*;
+
+import java.time.Instant;
 
 @Entity
 public abstract class Notification {
@@ -15,6 +18,12 @@ public abstract class Notification {
     @ManyToOne
     @JoinColumn(name = "receiver_id")
     protected User receiver;
+
+    protected boolean isDismissed = false;
+
+    protected Instant exactTime;
+
+    public Notification() {}
 
     public User getReceiver() {
         return receiver;
@@ -36,5 +45,32 @@ public abstract class Notification {
     }
     public boolean isMessage(){
         return this.getClass() == Message.class;
+    }
+
+    public boolean isDismissed() {
+        return isDismissed;
+    }
+
+    public void setDismissed(boolean dismissed) {
+        isDismissed = dismissed;
+    }
+
+    public Instant getExactTime() {
+        return exactTime;
+    }
+
+    public void setExactTime(Instant exactTime) {
+        this.exactTime = exactTime;
+    }
+    public String notificationType(){
+        if (this.getClass() == Message.class){
+            return NotificationRepository.MESSAGE;
+        }
+        else if (this.getClass() == Like.class){
+            return NotificationRepository.LIKE;
+        }
+        else {
+            return NotificationRepository.FOLLOW;
+        }
     }
 }

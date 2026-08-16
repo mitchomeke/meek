@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,11 +47,10 @@ public class MessagesController {
         message.setReceiver(receiver);
         message.setSender(sender);
         message.setContent(dto.getContent());
-        message.setTimestamp(LocalDateTime.now());
+        message.setTimestamp(Instant.now());
         notificationRepository.save(message);
 
         messagingTemplate.convertAndSendToUser(dto.getReceiverUsername(),"/queue/messages",dto);
-        receiver.addNotifications(message);
         userRepository.save(receiver);
 
     }
@@ -58,6 +58,7 @@ public class MessagesController {
     @GetMapping("/messages")
     public String openChat(@RequestParam(required = false) String recipient,
                            @RequestParam(required = false) String messenger,
+                            @RequestParam(required = false) Long notiId,
                             Model model){
         User receiver = userRepository.findByUserName(recipient).orElseThrow();
         User sender = userRepository.findByUserName(messenger).orElseThrow();
@@ -72,6 +73,12 @@ public class MessagesController {
         model.addAttribute("receiver",receiver);
         model.addAttribute("sender",sender.getUserName());
         model.addAttribute("receiverName",receiver.getUserName());
+
+        if (notiId != null){
+            Message message = messagesRepository.findById(notiId).orElseThrow();
+            message.setDismissed(true);
+            messagesRepository.save(message);
+        }
         return "messages";
     }
 }

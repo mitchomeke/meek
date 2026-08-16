@@ -5,7 +5,10 @@ import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
-public class Review extends Notification {
+public class Review {
+
+    @Id
+    @GeneratedValue private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -39,6 +42,10 @@ public class Review extends Notification {
         this.userName = user.getUserName();
         user.addReview(this);
         music.addReview(this);
+    }
+
+    public Long getId() {
+        return id;
     }
     public String getUserName(){
         return userName;

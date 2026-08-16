@@ -2,6 +2,7 @@ package com.example.MEEK.resources;
 
 import jakarta.persistence.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Entity
@@ -10,9 +11,9 @@ public class Message extends Notification {
     @Column(length = 1000)
     private String content;
 
-    private LocalDateTime timestamp = LocalDateTime.now();
+    private Instant timestamp = Instant.now();
 
-    public Message(User sender, User receiver, String content, LocalDateTime timestamp) {
+    public Message(User sender, User receiver, String content, Instant timestamp) {
         this.sender = sender;
         this.receiver = receiver;
         this.content = content;
@@ -28,11 +29,11 @@ public class Message extends Notification {
         this.content = content;
     }
 
-    public LocalDateTime getTimestamp() {
+    public Instant getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    public void setTimestamp(Instant timestamp) {
         this.timestamp = timestamp;
     }
 }
