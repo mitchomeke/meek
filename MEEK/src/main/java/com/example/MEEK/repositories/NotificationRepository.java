@@ -10,5 +10,6 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
     public static final String MESSAGE = "MESSAGE";
     public static final String FOLLOW = "FOLLOW";
     public static final String LIKE = "LIKE";
+    public static final String COMMENT = "COMMENT";
     List<Notification> findByReceiver(User user);
 }

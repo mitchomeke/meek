@@ -69,8 +69,15 @@ public abstract class Notification {
         else if (this.getClass() == Like.class){
             return NotificationRepository.LIKE;
         }
-        else {
+        else if (this.getClass() == Follow.class){
             return NotificationRepository.FOLLOW;
         }
+        else return NotificationRepository.COMMENT;
+    }
+    public Review getReviewIfComment(){
+        if (this instanceof Comment comment){
+            return comment.getReview();
+        }
+        return null;
     }
 }

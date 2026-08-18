@@ -92,6 +92,14 @@
                                             </h3>
                                         </a>
                                     </div>
+                                    <div th:case="'COMMENT'">
+                                        <a th:href="@{/comments(id=${notification.getReviewIfComment().getId()})}" class="group block">
+                                            <h3 class="font-bold text-white text-xs group-hover:text-blue-400 transition"
+                                                th:text="${notification.getSender() != null ?  notification.getSender().userName + ' just commented on your review!' : 'Someone just commented on your review!'}">
+                                                User just commented on your review!
+                                            </h3>
+                                        </a>
+                                    </div>
                                 </div>
 
 
@@ -192,25 +200,34 @@
                             </div>
                             <span class="text-xs text-blue-400 font-semibold px-2.5 py-1 rounded-full bg-blue-950/40 border border-blue-800/30 shrink-0"
                                   th:text="${review.user != null ? 'by ' + review.user.userName : 'by Anonymous'}">
-                                by UserName
-                            </span>
+                    by UserName
+                </span>
                         </div>
 
                         <p class="text-sm text-zinc-300 leading-relaxed font-normal" th:text="${review.description}">Review text...</p>
 
-                        <div class="flex justify-end pt-1">
-                            <form th:if="${#lists.contains(likes, review)}" th:action="@{/home/explore/unlike#tab-explore}" method="post">
+                        <div class="flex justify-between items-center pt-2">
+                            <form th:action="@{/comments}" method="get">
                                 <input type="hidden" name="reviewId" th:value="${review.getId()}"/>
                                 <button type="submit" class="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium rounded-lg transition">
-                                    Remove Like
+                                    Comments
                                 </button>
                             </form>
-                            <form th:unless="${#lists.contains(likes, review)}" th:action="@{/home/explore/like#tab-explore}" method="post">
-                                <input type="hidden" name="reviewId" th:value="${review.getId()}"/>
-                                <button type="submit" class="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition shadow-md shadow-blue-600/20">
-                                    Like Review
-                                </button>
-                            </form>
+
+                            <div>
+                                <form th:if="${#lists.contains(likes, review)}" th:action="@{/home/explore/unlike#tab-explore}" method="post">
+                                    <input type="hidden" name="reviewId" th:value="${review.getId()}"/>
+                                    <button type="submit" class="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium rounded-lg transition">
+                                        Remove Like
+                                    </button>
+                                </form>
+                                <form th:unless="${#lists.contains(likes, review)}" th:action="@{/home/explore/like#tab-explore}" method="post">
+                                    <input type="hidden" name="reviewId" th:value="${review.getId()}"/>
+                                    <button type="submit" class="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition shadow-md shadow-blue-600/20">
+                                        Like Review
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -254,6 +271,12 @@
                             </div>
                         </div>
                         <p class="text-sm text-zinc-300 bg-black/40 p-3.5 rounded-lg border border-zinc-800/50 italic leading-relaxed" th:text="${review.description}">Review notes...</p>
+                        <form th:action="@{/comments}" method="get">
+                            <input type="hidden" name="reviewId" th:value="${review.getId()}"/>
+                            <button type="submit" class="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium rounded-lg transition">
+                                Comments
+                            </button>
+                        </form>
                     </div>
                 </div>
 
@@ -362,6 +385,12 @@
                             <span class="text-xs text-blue-400 font-semibold px-2.5 py-1 rounded-full bg-blue-950/40 border border-blue-800/30 shrink-0" th:text="${like.getSender().userName != null ? 'Review by ' + like.getSender().userName: 'Review by Anonymous'}">Review by User</span>
                         </div>
                         <p class="text-sm text-zinc-300 bg-black/40 p-3.5 rounded-lg border border-zinc-800/50 italic leading-relaxed" th:text="${like.getReview().description}">Review notes...</p>
+                        <form th:action="@{/comments}" method="get">
+                            <input type="hidden" name="reviewId" th:value="${like.getReview().getId()}"/>
+                            <button type="submit" class="px-3 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-medium rounded-lg transition">
+                                Comments
+                            </button>
+                        </form>
                     </div>
                 </div>
 
