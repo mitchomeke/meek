@@ -3,10 +3,6 @@ package com.example.MEEK.controllers;
 import com.example.MEEK.exceptions.UserNotFound;
 import com.example.MEEK.repositories.*;
 import com.example.MEEK.resources.*;
-import com.example.MEEK.services.SpotifyService;
-import org.springframework.data.domain.Sort;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.List;
 
 @Controller
 public class HomeController {

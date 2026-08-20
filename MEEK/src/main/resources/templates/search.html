@@ -79,21 +79,24 @@
              class="p-4 bg-zinc-950/90 hover:bg-zinc-900/80 rounded-2xl flex items-center gap-4 border border-zinc-800/80 transition-all duration-200 shadow-xl group">
 
             <!-- Album Art -->
-            <img th:if="${!#lists.isEmpty(track.spotifyAlbum().spotifyImages())}"
-                 th:src="${track.spotifyAlbum().spotifyImages()[0].url}"
+            <img th:if="${track.artworkUrl30() != null}"
+                 th:src="${track.artworkUrl30()}"
                  alt="Cover" class="w-14 h-14 rounded-xl shrink-0 object-cover border border-zinc-800 shadow-md group-hover:border-blue-500/50 transition-all"/>
 
             <!-- Track Info -->
             <div class="flex-1 min-w-0">
-                <h3 class="font-bold text-white text-sm sm:text-base truncate group-hover:text-blue-400 transition" th:text="${track.name}">Song Name</h3>
-                <p class="text-xs text-zinc-400 truncate mt-0.5 font-medium" th:text="${track.spotifyArtists()[0].name}">Artist Name</p>
+                <h3 class="font-bold text-white text-sm sm:text-base truncate group-hover:text-blue-400 transition" th:text="${track.trackName()}">Song Name</h3>
+                <p class="text-xs text-zinc-400 truncate mt-0.5 font-medium" th:text="${track.artistName()}">Artist Name</p>
             </div>
 
-            <!-- Action Button -->
-            <a th:href="@{/allreviews(musicId=${track.id})}"
+            <!-- Action Button
+                      <a th:href="@{/allreviews(musicId=${track.id})}"
                class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-full transition-all shadow-md shadow-blue-600/20 shrink-0">
                 Reviews
             </a>
+
+             -->
+
 
         </div>
     </div>
