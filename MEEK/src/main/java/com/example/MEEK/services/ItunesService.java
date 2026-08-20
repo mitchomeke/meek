@@ -22,7 +22,7 @@ public class ItunesService {
             String jsonResponse = restClient.get().uri(uriBuilder ->
                             uriBuilder.queryParam("term",query.trim())
                                     .queryParam("media","music")
-                                    .queryParam("limit",10)
+                                    .queryParam("limit",20)
                                     .build())
                     .retrieve()
                     .body(String.class);
