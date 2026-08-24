@@ -85,7 +85,7 @@ public class HomeController {
     }
 
     @PostMapping("/home/explore/like")
-    public String like(Principal principal, @RequestParam("reviewId") Long reviewId){
+    public String like(Principal principal, @RequestParam("reviewId") Long reviewId, Model model){
         Review review = reviewRepository.findById(reviewId).orElseThrow();
 
         User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
@@ -95,27 +95,29 @@ public class HomeController {
         userRepository.save(loggedInUser);
         userRepository.save(otherUser);
 
-        return "redirect:/home";
+        return renderLikeButton(loggedInUser,review,model);
     }
     @PostMapping("/home/explore/unlike")
-    public String unlike( Principal principal, @RequestParam("reviewId") Long reviewId){
+    public String unlike( Principal principal, @RequestParam("reviewId") Long reviewId, Model model){
         Review review = reviewRepository.findById(reviewId).orElseThrow();
         User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
         User otherUser = review.getUser();
 
-        Like like = likeRepository.findAll().stream().map(
-                l -> {
-                    l.getReview().equals(review);
-                    l.getReceiver().equals(otherUser);
-                    l.getSender().equals(loggedInUser);
-                    return l;
-                }
-        ).toList().getFirst();
+        Like like = likeRepository.findAll().stream()
+                .filter(l -> l.getReview().equals(review)
+                        && l.getSender().equals(loggedInUser))
+                .findFirst()
+                .orElseThrow();
 
         notificationRepository.delete(like);
         userRepository.save(loggedInUser);
         userRepository.save(otherUser);
 
-        return "redirect:/home";
+        return renderLikeButton(loggedInUser,review,model);
+    }
+    private String renderLikeButton(User user, Review review, Model model) {
+        model.addAttribute("review", review);
+        model.addAttribute("likes", likeRepository.findByReceiver(user));
+        return "fragments/like-button :: likeButton";
     }
 }

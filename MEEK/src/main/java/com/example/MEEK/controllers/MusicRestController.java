@@ -3,16 +3,18 @@ import com.example.MEEK.*;
 import com.example.MEEK.assemblers.MusicAssembler;
 import com.example.MEEK.exceptions.SongNotFound;
 import com.example.MEEK.repositories.AlbumRepository;
+import com.example.MEEK.repositories.MusicRepository;
 import com.example.MEEK.repositories.SongRepository;
 import com.example.MEEK.resources.Music;
 import com.example.MEEK.resources.Song;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.EnableLoadTimeWeaving;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +26,9 @@ public class MusicRestController {
     private MusicAssembler musicAssembler;
     private SongRepository songRepository;
     private AlbumRepository albumRepository;
+
+    @Autowired
+    private MusicRepository musicRepository;
 
     public MusicRestController(MusicAssembler musicAssembler, SongRepository songRepository,
                                AlbumRepository albumRepository){

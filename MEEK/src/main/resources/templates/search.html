@@ -76,28 +76,47 @@
         </div>
 
         <div th:each="track : ${tracks}"
-             class="p-4 bg-zinc-950/90 hover:bg-zinc-900/80 rounded-2xl flex items-center gap-4 border border-zinc-800/80 transition-all duration-200 shadow-xl group">
+             class="p-3.5 bg-zinc-950/90 hover:bg-zinc-900/90 rounded-2xl flex items-center justify-between gap-4 border border-zinc-800/80 transition-all duration-200 shadow-xl group">
 
-            <!-- Album Art -->
-            <img th:if="${track.artworkUrl30() != null}"
-                 th:src="${track.artworkUrl30()}"
-                 alt="Cover" class="w-14 h-14 rounded-xl shrink-0 object-cover border border-zinc-800 shadow-md group-hover:border-blue-500/50 transition-all"/>
+            <!-- Left: Cover Art & Text Details -->
+            <div class="flex items-center gap-3.5 min-w-0 flex-1">
+                <!-- Album Art with Fallback Container -->
+                <div class="relative shrink-0 w-12 h-12 sm:w-14 sm:h-14">
+                    <img th:if="${track.artworkUrl30() != null}"
+                         th:src="${track.artworkUrl30()}"
+                         alt="Cover"
+                         class="w-full h-full rounded-xl object-cover border border-zinc-800 shadow-md group-hover:border-rose-500/50 transition-all"/>
 
-            <!-- Track Info -->
-            <div class="flex-1 min-w-0">
-                <h3 class="font-bold text-white text-sm sm:text-base truncate group-hover:text-blue-400 transition" th:text="${track.trackName()}">Song Name</h3>
-                <p class="text-xs text-zinc-400 truncate mt-0.5 font-medium" th:text="${track.artistName()}">Artist Name</p>
+                    <div th:if="${track.artworkUrl30() == null}"
+                         class="w-full h-full rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-600 text-lg">
+                        🎵
+                    </div>
+                </div>
+
+                <!-- Track & Artist Info -->
+                <div class="min-w-0 flex-1">
+                    <h3 class="font-bold text-white text-sm sm:text-base truncate group-hover:text-rose-400 transition-colors"
+                        th:text="${track.trackName()}">Song Name</h3>
+                    <p class="text-xs text-zinc-400 truncate mt-0.5 font-medium"
+                       th:text="${track.artistName()}">Artist Name</p>
+                </div>
             </div>
 
-            <!-- Action Button
-                      <a th:href="@{/allreviews(musicId=${track.id})}"
-               class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-full transition-all shadow-md shadow-blue-600/20 shrink-0">
-                Reviews
-            </a>
+            <!-- Right: Explicit Analyze Form Button -->
+            <form th:action="@{/analyzeMusic}" method="POST" class="shrink-0">
+                <input name="trackId" th:value="${track.trackId()}" type="hidden" />
+                <input name="artistId" th:value="${track.artistId()}" type="hidden" />
+                <input name="collectionId" th:value="${track.collectionId()}" type="hidden" />
 
-             -->
-
-
+                <button type="submit"
+                        class="px-3.5 py-1.5 bg-gradient-to-r from-rose-800 to-rose-700 hover:from-rose-700 hover:to-rose-600 active:from-rose-900 active:to-rose-800 text-white font-medium text-xs rounded-full transition-all duration-200 shadow-md shadow-rose-950/60 border border-rose-500/40 cursor-pointer flex items-center gap-1.5">
+                    <span>Analyze</span>
+                    <!-- Simple Right Chevron Icon -->
+                    <svg class="w-3.5 h-3.5 text-rose-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </form>
         </div>
     </div>
 

@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface MusicRepository extends JpaRepository<Music,Long> {
-
+    Music getMusicByMusicNameAndArtistName(String musicName, String artistName);
 }
