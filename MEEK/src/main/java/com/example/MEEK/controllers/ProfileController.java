@@ -52,7 +52,8 @@ public class ProfileController {
                 r -> r.getUser().equals(userProfile)
                 ).toList());
         model.addAttribute("userLikes",likeRepository.findBySender(userProfile));
-        model.addAttribute("loggedInUserLikes",likeRepository.findBySender(loggedInUser));
+        model.addAttribute("loggedInUserReviewOfLikes",likeRepository.findBySender(loggedInUser).stream()
+                .map(Like::getReview).toList());
         model.addAttribute("isFollowing",followRepository.getReceiversFor(loggedInUser).stream().toList().contains(userProfile));
         return "profile";
     }
@@ -101,13 +102,12 @@ public class ProfileController {
         User otherUser = userRepository.findById(id).orElseThrow();
         Review review = reviewRepository.findById(reviewId).orElseThrow();
 
-        Like like = likeRepository.findAll().stream().map(
-                l -> {
-                    l.getReview().equals(review);
-                    l.getReceiver().equals(otherUser);
-                    l.getSender().equals(loggedInUser);
-                    return l;
-                }
+        Like like = likeRepository.findAll().stream().filter(
+                l ->
+                    l.getReview().equals(review)
+                    && l.getReceiver().equals(otherUser)
+                    && l.getSender().equals(loggedInUser)
+
         ).toList().getFirst();
 
         notificationRepository.delete(like);

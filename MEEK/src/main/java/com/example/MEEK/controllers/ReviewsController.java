@@ -38,10 +38,12 @@ public class ReviewsController {
             model.addAttribute("music",music);
             model.addAttribute("allReviews",music.getReviews());
             model.addAttribute("songOfReviews",reviewRepository.songOfReviewsByUser(user));
+            model.addAttribute("musicRating",reviewRepository.getMusicRating(music));
         } else {
             model.addAttribute("music",music);
             model.addAttribute("allReviews",music.getReviews());
             model.addAttribute("songOfReviews",reviewRepository.songOfReviewsByUser(user));
+            model.addAttribute("musicRating",reviewRepository.getMusicRating(music));
         }
         return "allreviews";
     }

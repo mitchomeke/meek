@@ -18,4 +18,10 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
     @Query("SELECT r from Review r where r.user = :user and r.music = :music")
     Review getReviewOfMusic(@Param("user") User user, @Param("music") Music music);
 
+    @Query("select sum(r.rating)/count(r) from Review r where r.music = :music")
+    Double getMusicRating(@Param("music")Music music);
+
+    @Query("select r from Review r where r.user = :user")
+    List<Review> getUserReviews(User user);
+
 }

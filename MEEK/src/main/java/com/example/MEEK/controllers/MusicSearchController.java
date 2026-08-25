@@ -28,13 +28,7 @@ public class MusicSearchController {
 
     @GetMapping("/search")
     public String searchTracks(@RequestParam(required = false) String query, Model model){
-        if (query != null && !query.trim().isEmpty()){
-            ItunesSearchResponse response = service.searchQuery(query);
-            if (response != null && response.trackItemList() != null){
-                model.addAttribute("tracks", response.trackItemList().stream().toList());
-            }
-        }
-        model.addAttribute("query",query);
+       searchTracksMethod(query, model);
         return "search";
     }
 
@@ -53,5 +47,15 @@ public class MusicSearchController {
             return "redirect:/allreviews?musicId="+music.getId();
         }
     }
+    public void searchTracksMethod(String query, Model model){
+        if (query != null && !query.trim().isEmpty()){
+            ItunesSearchResponse response = service.searchQuery(query);
+            if (response != null && response.trackItemList() != null){
+                model.addAttribute("tracks", response.trackItemList().stream().toList());
+            }
+        }
+        model.addAttribute("query",query);
+    }
+
 
 }

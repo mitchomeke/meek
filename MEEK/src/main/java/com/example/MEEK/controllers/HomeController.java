@@ -3,6 +3,7 @@ package com.example.MEEK.controllers;
 import com.example.MEEK.exceptions.UserNotFound;
 import com.example.MEEK.repositories.*;
 import com.example.MEEK.resources.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -32,27 +33,7 @@ public class HomeController {
 
     @GetMapping("/home")
     public String getHomePage(Principal principal, Model model){
-        String name = principal.getName();
-        User user = userRepository.findByUserName(name).orElseThrow(
-                () -> new UserNotFound(1L)
-        );
-        model.addAttribute("user",user);
-        model.addAttribute("friends",followRepository.getReceiversFor(user).stream().toList());
-        model.addAttribute("songs",musicRepository.findAll());
-        model.addAttribute("userReviews",user.getReviews());
-        model.addAttribute("likes",likeRepository.findByReceiver(user));
-        model.addAttribute("musics",musicRepository.findAll()
-                .stream().filter(music -> music.getRating() > 0).
-                sorted(Comparator.comparingDouble(Music::getRating).reversed()).toList());
-
-        model.addAttribute("friendReviews",
-                reviewRepository.findByUserIn(followRepository.getReceiversFor(user).stream().toList()));
-        model.addAttribute("musicOfReviews",user.getReviews().stream().map(
-                Review::getMusic
-        ).toList());
-        model.addAttribute("notifications",notificationRepository.findByReceiver(user).stream().filter(
-                n -> !n.isDismissed()
-        ).toList());
+        LoadHomePage(principal, model);
         return "home";
     }
 
@@ -60,13 +41,15 @@ public class HomeController {
     public String createReview(@RequestParam("songId") Long songId,
                                @RequestParam("rating") Integer rating,
                                @RequestParam("description") String description,
-                               Principal principal){
+                               Principal principal,Model model){
         User user = userRepository.findByUserName(principal.getName()).orElseThrow();
         Music music = musicRepository.findById(songId).orElseThrow();
 
         Review review = new Review(user,music,rating,description);
         reviewRepository.save(review);
-        return "redirect:/home";
+        userRepository.save(user);
+
+      return "redirect:/allreviews?musicId="+music.getId();
     }
     @PostMapping("/reviews/edit")
     public String editReview(@RequestParam("rating") Integer rating,
@@ -81,7 +64,9 @@ public class HomeController {
         review.setDescription(description);
         review.setUser(user);
         reviewRepository.save(review);
-        return "redirect:/home";
+        userRepository.save(user);
+
+        return "redirect:/allreviews?musicId="+review.getMusic().getId();
     }
 
     @PostMapping("/home/explore/like")
@@ -95,29 +80,49 @@ public class HomeController {
         userRepository.save(loggedInUser);
         userRepository.save(otherUser);
 
-        return renderLikeButton(loggedInUser,review,model);
+        return "redirect:/home";
     }
     @PostMapping("/home/explore/unlike")
-    public String unlike( Principal principal, @RequestParam("reviewId") Long reviewId, Model model){
+    public String unlike( Principal principal, @RequestParam("reviewId") Long reviewId){
         Review review = reviewRepository.findById(reviewId).orElseThrow();
         User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
         User otherUser = review.getUser();
 
         Like like = likeRepository.findAll().stream()
                 .filter(l -> l.getReview().equals(review)
-                        && l.getSender().equals(loggedInUser))
+                        && l.getSender().equals(loggedInUser)
+                && l.getReceiver().equals(otherUser))
                 .findFirst()
                 .orElseThrow();
 
         notificationRepository.delete(like);
         userRepository.save(loggedInUser);
         userRepository.save(otherUser);
+        return "redirect:/home";
+    }
+    private void LoadHomePage(Principal principal, Model model){
+        String name = principal.getName();
+        User user = userRepository.findByUserName(name).orElseThrow(
+                () -> new UserNotFound(1L)
+        );
+        model.addAttribute("user",user);
+        model.addAttribute("friends",followRepository.getReceiversFor(user).stream().toList());
+        model.addAttribute("songs",musicRepository.findAll());
+        model.addAttribute("userReviews",reviewRepository.getUserReviews(user).stream().toList());
+        model.addAttribute("reviewOfLikes",likeRepository.findBySender(user).stream().map(Like::getReview).toList());
+        model.addAttribute("likes",likeRepository.findBySender(user));
+        model.addAttribute("musics",musicRepository.findAll()
+                .stream().filter(music -> music.getRating() > 0).
+                sorted(Comparator.comparingDouble(Music::getRating).reversed()).toList());
 
-        return renderLikeButton(loggedInUser,review,model);
+        model.addAttribute("friendReviews",
+                reviewRepository.findByUserIn(followRepository.getReceiversFor(user).stream().toList()));
+        model.addAttribute("musicOfReviews",reviewRepository.songOfReviewsByUser(user).stream().toList());
+        model.addAttribute("notifications",notificationRepository.findByReceiver(user).stream().filter(
+                n -> !n.isDismissed()
+        ).toList());
     }
-    private String renderLikeButton(User user, Review review, Model model) {
-        model.addAttribute("review", review);
-        model.addAttribute("likes", likeRepository.findByReceiver(user));
-        return "fragments/like-button :: likeButton";
-    }
+
+
+
 }
