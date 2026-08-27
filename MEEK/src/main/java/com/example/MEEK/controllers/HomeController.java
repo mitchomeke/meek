@@ -20,6 +20,7 @@ public class HomeController {
     private final NotificationRepository notificationRepository;
     private final LikeRepository likeRepository;
     private final FollowRepository followRepository;
+    private final AuxMethods auxMethods;
 
     public HomeController(UserRepository userRepository, MusicRepository musicRepository, ReviewRepository reviewRepository, NotificationRepository notificationRepository, LikeRepository likeRepository, FollowRepository followRepository) {
         this.userRepository = userRepository;
@@ -28,6 +29,7 @@ public class HomeController {
         this.notificationRepository = notificationRepository;
         this.likeRepository = likeRepository;
         this.followRepository = followRepository;
+        this.auxMethods = new AuxMethods();
     }
 
 
@@ -70,34 +72,13 @@ public class HomeController {
     }
 
     @PostMapping("/home/explore/like")
-    public String like(Principal principal, @RequestParam("reviewId") Long reviewId, Model model){
-        Review review = reviewRepository.findById(reviewId).orElseThrow();
-
-        User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
-        User otherUser = review.getUser();
-
-        notificationRepository.save(new Like(loggedInUser,otherUser,review, Instant.now()));
-        userRepository.save(loggedInUser);
-        userRepository.save(otherUser);
-
+    public String like(Principal principal, @RequestParam("reviewId") Long reviewId){
+        auxMethods.Like(principal.getName(),reviewId,reviewRepository,userRepository,notificationRepository);
         return "redirect:/home";
     }
     @PostMapping("/home/explore/unlike")
     public String unlike( Principal principal, @RequestParam("reviewId") Long reviewId){
-        Review review = reviewRepository.findById(reviewId).orElseThrow();
-        User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
-        User otherUser = review.getUser();
-
-        Like like = likeRepository.findAll().stream()
-                .filter(l -> l.getReview().equals(review)
-                        && l.getSender().equals(loggedInUser)
-                && l.getReceiver().equals(otherUser))
-                .findFirst()
-                .orElseThrow();
-
-        notificationRepository.delete(like);
-        userRepository.save(loggedInUser);
-        userRepository.save(otherUser);
+        auxMethods.unLike(principal.getName(),reviewId,reviewRepository,userRepository,notificationRepository,likeRepository);
         return "redirect:/home";
     }
     private void LoadHomePage(Principal principal, Model model){

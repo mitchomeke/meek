@@ -21,6 +21,7 @@ public class ProfileController {
     private final NotificationRepository notificationRepository;
     private final LikeRepository likeRepository;
     private final FollowRepository followRepository;
+    private final AuxMethods auxMethods;
 
     public ProfileController(UserRepository userRepository, ReviewRepository reviewRepository, NotificationRepository notificationRepository, LikeRepository likeRepository, FollowRepository followRepository) {
         this.userRepository = userRepository;
@@ -28,6 +29,7 @@ public class ProfileController {
         this.notificationRepository = notificationRepository;
         this.likeRepository = likeRepository;
         this.followRepository = followRepository;
+        this.auxMethods = new AuxMethods();
     }
 
     @GetMapping("/{id}/profile")
@@ -36,11 +38,7 @@ public class ProfileController {
                 () -> new RuntimeException("User not found: "+ id)
         );
         User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
-        Optional<Follow> follow = followRepository.findAll().stream().filter(
-                f -> (
-                        f.getSender().equals(userProfile)
-                        &&
-                        f.getReceiver().equals(loggedInUser))).findAny();
+        Optional<Follow> follow = followRepository.findBetweenSenderAndReceiver(userProfile,loggedInUser);
         if (follow.isPresent()){
             follow.get().setDismissed(true);
             followRepository.save(follow.get());
@@ -63,12 +61,9 @@ public class ProfileController {
                 () -> new RuntimeException("User not found: "+ id)
         );
         User LoggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
-        Follow follow = followRepository.findAll().stream().filter(
-                f ->
-                 (f.getSender().equals(LoggedInUser) && f.getReceiver().equals(userProfile))
-        ).findAny().orElseThrow();
-        followRepository.delete(follow);
+        Follow follow = followRepository.findBetweenSenderAndReceiver(LoggedInUser,userProfile).get();
 
+        followRepository.delete(follow);
         userRepository.save(LoggedInUser);
 
         return "redirect:/users/"+id+"/profile";
@@ -80,39 +75,21 @@ public class ProfileController {
         );
         User LoggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
         Follow follow = new Follow(LoggedInUser,userProfile);
-        followRepository.save(follow);
 
+        followRepository.save(follow);
         userRepository.save(LoggedInUser);
 
         return "redirect:/users/"+id+"/profile";
     }
     @PostMapping("/{id}/profile/like")
     public String like(@PathVariable("id") Long id, Principal principal, @RequestParam("reviewId") Long reviewId){
-        User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
-        User otherUser = userRepository.findById(id).orElseThrow();
-        Review review = reviewRepository.findById(reviewId).orElseThrow();
-
-        notificationRepository.save(new Like(loggedInUser,otherUser,review, Instant.now()));
-
+        auxMethods.Like(principal.getName(),reviewId,reviewRepository,userRepository,notificationRepository);
         return "redirect:/users/"+id+"/profile";
     }
     @PostMapping("/{id}/profile/unlike")
     public String unlike(@PathVariable("id") Long id, Principal principal, @RequestParam("reviewId") Long reviewId){
-        User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
-        User otherUser = userRepository.findById(id).orElseThrow();
-        Review review = reviewRepository.findById(reviewId).orElseThrow();
-
-        Like like = likeRepository.findAll().stream().filter(
-                l ->
-                    l.getReview().equals(review)
-                    && l.getReceiver().equals(otherUser)
-                    && l.getSender().equals(loggedInUser)
-
-        ).toList().getFirst();
-
-        notificationRepository.delete(like);
+        auxMethods.unLike(principal.getName(),reviewId,reviewRepository,userRepository,notificationRepository,likeRepository);
         return "redirect:/users/"+id+"/profile";
     }
-
 
 }

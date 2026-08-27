@@ -74,28 +74,7 @@ public class UserRestController {
             return ResponseEntity.internalServerError().body("Error Uploading Image.");
         }
     }
-    @PutMapping("/users/follow/{id}")
-    public ResponseEntity<?> followUser(@PathVariable Long id, @RequestParam String userName){
-        User user = getUserById(id);
-        if (user.getUserName().equalsIgnoreCase(userName)){
-            return ResponseEntity.internalServerError().body("User cannot follow himself/herself");
-        }
-        User existUser = getUserByUserName(userName);
-        if (existUser == null){
-            return ResponseEntity.internalServerError().body("The User you want to follow does not exist");
-        }
-        user.addMeeker(existUser);
-        EntityModel<User> userModel = userAssembler.toModel(userRepository.save(user));
-        return ResponseEntity.created(userModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).build();
-    }
-    @GetMapping("/users/meekers/{id}")
-    public CollectionModel<EntityModel<User>> getMeekers(@PathVariable Long id){
-        User user = getUserById(id);
-        List<EntityModel<User>> meekers = user.getMeekers().stream().map(
-                user1 -> userAssembler.toModel(user1)
-        ).collect(Collectors.toList());
-        return CollectionModel.of(meekers,linkTo(methodOn(UserRestController.class).getMeekers(id)).withRel("meekers"));
-    }
+
     @PostMapping("/users/review/{musicId}")
     public ResponseEntity<?> reviewMusic(@PathVariable Long musicId, @RequestParam String userName,
                                          @RequestParam double rating, @RequestParam String description){
@@ -107,7 +86,6 @@ public class UserRestController {
         );
 
         review.setMusic(music);
-        music.addReview(review);
         return ResponseEntity.ok(reviewAssembler.toModel(reviewRepository.save(review)));
     }
     private User getUserByUserName(String userName){

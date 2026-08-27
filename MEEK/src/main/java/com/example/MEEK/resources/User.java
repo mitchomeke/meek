@@ -12,27 +12,15 @@ import java.util.Objects;
 @Entity
 @Table(name = "Users")
 public class User {
-
     @Id
     @GeneratedValue private Long id;
     private String userName;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JsonIgnore
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<User> meekers = new ArrayList<>();
-
     @Lob
     @Column(name = "display_photo", columnDefinition = "LONGBLOB")
     @JsonIgnore
     private byte[] displayPhoto;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JsonIgnore
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<Review> reviews = new ArrayList<>();
-
     private String encryptedPassword;
+    private String bio;
 
     public User(){}
     public User(String userName, byte[] displayPhoto, String encryptedPassword){
@@ -43,55 +31,40 @@ public class User {
     public User(String userName){
         this.userName = userName;
     }
-
     public String getUserName() {
         return userName;
     }
-
     public byte[] getDisplayPhoto() {
         return displayPhoto;
     }
-
     public void setDisplayPhoto(byte[] displayPhoto) {
         this.displayPhoto = displayPhoto;
     }
-
-    public List<User> getMeekers() {
-        return meekers;
-    }
-    public void addMeeker(User user){
-        meekers.add(user);
-    }
-
     public Long getId() {
         return id;
     }
     public void setPassword(String password){
         encryptedPassword = password;
     }
-
     public String getEncryptedPassword() {
         return encryptedPassword;
     }
-    public void addReview(Review review){
-        reviews.add(review);
+    public String getBio() {
+        return bio;
     }
-    public List<Review> getReviews(){
-        return reviews;
+    public void setBio(String bio) {
+        this.bio = bio;
     }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(id, user.id) && Objects.equals(userName, user.userName) && Objects.deepEquals(displayPhoto, user.displayPhoto);
     }
-
     @Override
     public int hashCode() {
         return Objects.hash(id, userName, Arrays.hashCode(displayPhoto));
     }
-
     @Override
     public String toString() {
         return "User{" +

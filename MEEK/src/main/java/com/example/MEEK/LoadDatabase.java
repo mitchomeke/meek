@@ -50,6 +50,14 @@ public class LoadDatabase {
             User alex = userRepository.save(new User("alex_beats", photoBytes, encodedPassword));
             User sarah = userRepository.save(new User("sarah_vibes", photoBytes, encodedPassword));
 
+            // Set bios for each user
+            mitch.setBio("Coffee addict ☕ | Running enthusiast 🏃 | Always looking for new food spots");
+            angela.setBio("UI/UX Designer by day, amateur baker by night 🍰✨");
+            daisy.setBio("Plant mom 🌿 | Books, travel, & good wine 🍷");
+            alex.setBio("Music producer & vinyl collector 🎧🎹 Drop your playlist recs below!");
+            sarah.setBio("Living for the weekend 🌊 | Photography & outdoor adventures 📸");
+
+
             userRepository.findAll().forEach(user -> log.info("Preloaded User -> " + user.getUserName()));
 
             // Make everyone friends with each other

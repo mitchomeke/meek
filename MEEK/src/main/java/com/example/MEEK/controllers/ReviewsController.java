@@ -49,10 +49,9 @@ public class ReviewsController {
     }
     @GetMapping("/reviewOf")
     public String getReviewOf(@RequestParam(required = true) Long likeId, Model model){
-        Review review = likeRepository.findAll().stream().filter(
-                l -> l.getId().equals(likeId)
-        ).toList().getFirst().getReview();
         Like like = likeRepository.findById(likeId).orElseThrow();
+        Review review = likeRepository.getReviewOfLike(like);
+
         like.setDismissed(true);
         likeRepository.save(like);
         model.addAttribute("review",review);

@@ -63,12 +63,7 @@ public class MessagesController {
         User receiver = userRepository.findByUserName(recipient).orElseThrow();
         User sender = userRepository.findByUserName(messenger).orElseThrow();
 
-        List<Message> chatHistory = messagesRepository.findAll().stream().filter(
-                m -> (m.getReceiver().getUserName().equals(recipient) &&
-                    m.getSender().getUserName().equals(sender.getUserName()))
-                || (m.getSender().getUserName().equals(recipient)
-                        && m.getReceiver().getUserName().equals(sender.getUserName()))
-                    ).toList();
+        List<Message> chatHistory = messagesRepository.chatHistoryBetween(recipient,messenger);
         model.addAttribute("chatHistory",chatHistory);
         model.addAttribute("receiver",receiver);
         model.addAttribute("sender",sender.getUserName());
