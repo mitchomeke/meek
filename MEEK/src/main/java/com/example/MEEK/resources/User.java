@@ -37,6 +37,10 @@ public class User {
     public byte[] getDisplayPhoto() {
         return displayPhoto;
     }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
     public void setDisplayPhoto(byte[] displayPhoto) {
         this.displayPhoto = displayPhoto;
     }

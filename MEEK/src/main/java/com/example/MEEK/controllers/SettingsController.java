@@ -1,17 +1,88 @@
 package com.example.MEEK.controllers;
 
+import com.example.MEEK.repositories.UserRepository;
+import com.example.MEEK.resources.User;
+import com.example.MEEK.services.CustomUserDetailsService;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.security.Principal;
 
 @Controller
 @RequestMapping("/settings")
 public class SettingsController {
+    private final UserRepository userRepository;
+    private final CustomUserDetailsService userDetailsService;
+    private final AuxMethods auxMethods;
+    private final PasswordEncoder passwordEncoder;
+
+    public SettingsController(UserRepository userRepository, CustomUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
+        this.auxMethods = new AuxMethods();
+    }
 
 
     @GetMapping
     public String openSettings(){
         return "settings";
+    }
+    @PostMapping("/changeUserName")
+    public String changeUserName(@RequestParam String currentUserName, @RequestParam String newUserName,
+                                 @RequestParam String finalUserName, Principal principal,
+                                 HttpServletRequest request){
+        if (!currentUserName.equals(principal.getName())){
+            return "redirect:/settings?userNameWrong";
+        }
+        if (!newUserName.equals(finalUserName)){
+            return "redirect:/settings?userNameDontMatch";
+        }
+        if (userRepository.findByUserName(finalUserName).isPresent()){
+            return "redirect:/settings?userNameAlreadyTaken";
+        }
+        User user = userRepository.findByUserName(principal.getName()).orElseThrow();
+        user.setUserName(finalUserName);
+        userRepository.save(user);
+
+        auxMethods.authenticate(finalUserName,userDetailsService,request);
+        return "redirect:/settings?userNameUpdated";
+    }
+    @PostMapping("/changePassword")
+    public String changePassword(Principal principal,HttpServletRequest request,@RequestParam String currentPassword,
+                                 @RequestParam String newPassword,
+                                 @RequestParam String finalPassword){
+        User user = userRepository.findByUserName(principal.getName()).orElseThrow();
+
+        if (!passwordEncoder.matches(currentPassword,user.getEncryptedPassword())){
+            return "redirect:/settings?passwordWrong";
+        }
+        if (!newPassword.equals(finalPassword)){
+            return "redirect:/settings?passwordDontMatch";
+        }
+        if (passwordEncoder.matches(finalPassword,user.getEncryptedPassword())){
+            return "redirect:/settings?sameAsBefore";
+        }
+        String encodedPassword = passwordEncoder.encode(finalPassword);
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+        auxMethods.authenticate(user.getUserName(),userDetailsService,request);
+        return "redirect:/settings?passwordUpdated";
     }
 
 }

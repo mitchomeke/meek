@@ -4,6 +4,7 @@ import com.example.MEEK.exceptions.UserNotFound;
 import com.example.MEEK.repositories.UserRepository;
 import com.example.MEEK.resources.User;
 import com.example.MEEK.services.CustomUserDetailsService;
+import com.example.MEEK.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Configuration;
@@ -25,13 +26,15 @@ import java.util.Collections;
 @Controller
 public class AuthController {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
    private final CustomUserDetailsService userDetailsService;
+   private final UserService userService;
+   private final AuxMethods auxMethods;
 
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, CustomUserDetailsService userDetailsService) {
+    public AuthController(UserRepository userRepository, CustomUserDetailsService userDetailsService, UserService userService) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
         this.userDetailsService = userDetailsService;
+        this.userService = userService;
+        this.auxMethods = new AuxMethods();
     }
 
     @GetMapping("/")
@@ -46,19 +49,8 @@ public class AuthController {
         if (userRepository.findByUserName(UserName).isPresent()){
             return "redirect:/register?exists";
         }
-        User user = new User(UserName);
-        String encryptedPassword = passwordEncoder.encode(password);
-        user.setPassword(encryptedPassword);
-        userRepository.save(user);
-
-        UserDetails userDetails = userDetailsService.loadUserByUsername(UserName);
-        SecurityContext sc = SecurityContextHolder.createEmptyContext();
-        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
-        sc.setAuthentication(auth);
-        SecurityContextHolder.setContext(sc);
-
-        HttpSession session = request.getSession(true);
-        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,sc);
+        userService.registerNewUser(UserName,password);
+        auxMethods.authenticate(UserName,userDetailsService,request);
         return "redirect:/home";
     }
     @GetMapping("/register")
