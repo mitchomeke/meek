@@ -21,6 +21,10 @@ public class User {
     private byte[] displayPhoto;
     private String encryptedPassword;
     private String bio;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JsonIgnore
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<User> blockedUsers = new ArrayList<>();
 
     public User(){}
     public User(String userName, byte[] displayPhoto, String encryptedPassword){
@@ -58,6 +62,15 @@ public class User {
     }
     public void setBio(String bio) {
         this.bio = bio;
+    }
+    public List<User> getBlockedUsers() {
+        return blockedUsers;
+    }
+    public void blockUser(User user){
+        blockedUsers.add(user);
+    }
+    public void unblockUser(User user){
+        blockedUsers.remove(user);
     }
     @Override
     public boolean equals(Object o) {

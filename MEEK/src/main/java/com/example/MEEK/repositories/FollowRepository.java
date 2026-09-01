@@ -15,4 +15,8 @@ public interface FollowRepository extends JpaRepository<Follow,Long> {
 
     @Query("select f from Follow f where f.sender = :sender and f.receiver = :receiver")
     Optional<Follow> findBetweenSenderAndReceiver(User sender, User receiver);
+
+    @Query("select f from Follow f where (f.sender = :firstUser and f.receiver = :secondUser) or " +
+            "(f.sender = :secondUser and f.receiver = :firstUser)")
+    List<Optional<Follow>> findBetweenUsers(User firstUser, User secondUser);
 }

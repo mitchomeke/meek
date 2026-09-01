@@ -64,9 +64,9 @@ public class SettingsController {
         return "redirect:/settings?userNameUpdated";
     }
     @PostMapping("/changePassword")
-    public String changePassword(Principal principal,HttpServletRequest request,@RequestParam String currentPassword,
-                                 @RequestParam String newPassword,
-                                 @RequestParam String finalPassword){
+    public String changePassword(Principal principal,HttpServletRequest request,@RequestParam("currentPassword") String currentPassword,
+                                 @RequestParam("newPassword") String newPassword,
+                                 @RequestParam("finalPassword") String finalPassword){
         User user = userRepository.findByUserName(principal.getName()).orElseThrow();
 
         if (!passwordEncoder.matches(currentPassword,user.getEncryptedPassword())){
@@ -83,6 +83,16 @@ public class SettingsController {
         userRepository.save(user);
         auxMethods.authenticate(user.getUserName(),userDetailsService,request);
         return "redirect:/settings?passwordUpdated";
+    }
+    @PostMapping("/changeBio")
+    public String changeBio(Principal principal, @RequestParam("newBio") String newBio){
+        if (newBio != null && newBio.length() > 150){
+            return "redirect:/settings?bioTooLong";
+        }
+        User user = userRepository.findByUserName(principal.getName()).orElseThrow();
+        user.setBio(newBio);
+        userRepository.save(user);
+        return "redirect:/settings?bioUpdated";
     }
 
 }

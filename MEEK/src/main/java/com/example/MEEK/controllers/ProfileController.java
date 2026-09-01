@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 @RequestMapping("/users")
@@ -44,6 +45,7 @@ public class ProfileController {
             followRepository.save(follow.get());
         }
 
+        model.addAttribute("isBlocked",loggedInUser.getBlockedUsers().contains(userProfile));
         model.addAttribute("loggedInUser",loggedInUser);
         model.addAttribute("profileUser",userProfile);
         model.addAttribute("userReviews",reviewRepository.findAll().stream().filter(
@@ -91,5 +93,33 @@ public class ProfileController {
         auxMethods.unLike(principal.getName(),reviewId,reviewRepository,userRepository,notificationRepository,likeRepository);
         return "redirect:/users/"+id+"/profile";
     }
+    @PostMapping("/{id}/profile/block")
+    public String block(@PathVariable("id") Long id, Principal principal){
+        User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
+        User otherUser = userRepository.findById(id).orElseThrow();
+        if (followRepository.findBetweenUsers(loggedInUser,otherUser) != null &&
+        !followRepository.findBetweenUsers(loggedInUser,otherUser).isEmpty()){
+            List<Follow> followList = followRepository.findBetweenUsers(loggedInUser,otherUser).stream().map(
+                    Optional::get
+            ).toList();
+            followRepository.deleteAll(followList);
+        }
+        loggedInUser.blockUser(otherUser);
+        userRepository.save(loggedInUser);
+        userRepository.save(otherUser);
+        return "redirect:/users/"+id+"/profile";
+    }
+    @PostMapping("/{id}/profile/unBlock")
+    public String unBlock(@PathVariable("id") Long id, Principal principal){
+        User loggedInUser = userRepository.findByUserName(principal.getName()).orElseThrow();
+        User otherUser = userRepository.findById(id).orElseThrow();
+        if (loggedInUser.getBlockedUsers().contains(otherUser)){
+            loggedInUser.unblockUser(otherUser);
+        }
+        userRepository.save(loggedInUser);
+        userRepository.save(otherUser);
+        return "redirect:/users/"+id+"/profile";
+    }
+
 
 }
