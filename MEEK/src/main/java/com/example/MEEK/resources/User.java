@@ -14,11 +14,13 @@ import java.util.Objects;
 public class User {
     @Id
     @GeneratedValue private Long id;
+    private String firstName;
+    private String lastName;
     private String userName;
     @Lob
     @Column(name = "display_photo", columnDefinition = "LONGBLOB")
     @JsonIgnore
-    private byte[] displayPhoto;
+    private String displayPhoto;
     private String encryptedPassword;
     private String bio;
     @ManyToMany(fetch = FetchType.EAGER)
@@ -27,7 +29,7 @@ public class User {
     private List<User> blockedUsers = new ArrayList<>();
 
     public User(){}
-    public User(String userName, byte[] displayPhoto, String encryptedPassword){
+    public User(String userName, String displayPhoto, String encryptedPassword){
         this.userName = userName;
         this.displayPhoto = displayPhoto;
         this.encryptedPassword = encryptedPassword;
@@ -38,14 +40,13 @@ public class User {
     public String getUserName() {
         return userName;
     }
-    public byte[] getDisplayPhoto() {
+    public String getDisplayPhoto() {
         return displayPhoto;
     }
-
     public void setUserName(String userName) {
         this.userName = userName;
     }
-    public void setDisplayPhoto(byte[] displayPhoto) {
+    public void setDisplayPhoto(String displayPhoto) {
         this.displayPhoto = displayPhoto;
     }
     public Long getId() {
@@ -62,6 +63,21 @@ public class User {
     }
     public void setBio(String bio) {
         this.bio = bio;
+    }
+    public String getFirstName() {
+        return firstName;
+    }
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+    public String getLastName() {
+        return lastName;
+    }
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+    public String getFullName(){
+      return firstName + " " + lastName;
     }
     public List<User> getBlockedUsers() {
         return blockedUsers;
@@ -80,14 +96,14 @@ public class User {
     }
     @Override
     public int hashCode() {
-        return Objects.hash(id, userName, Arrays.hashCode(displayPhoto));
+        return Objects.hash(id, userName, Arrays.hashCode(displayPhoto.toCharArray()));
     }
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
                 ", userName='" + userName + '\'' +
-                ", displayPhoto=" + Arrays.toString(displayPhoto) +
+                ", displayPhoto=" + displayPhoto +
                 '}';
     }
 }

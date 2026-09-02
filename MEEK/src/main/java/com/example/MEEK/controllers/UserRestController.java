@@ -5,6 +5,7 @@ import com.example.MEEK.exceptions.MusicNotFound;
 import com.example.MEEK.exceptions.UserNotFound;
 import com.example.MEEK.repositories.*;
 import com.example.MEEK.resources.*;
+import com.example.MEEK.services.FileStorageService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -28,6 +29,7 @@ public class UserRestController {
     private MusicRepository musicRepository;
     private ReviewRepository reviewRepository;
     private ReviewAssembler reviewAssembler;
+    private FileStorageService fileStorageService;
 
     public UserRestController(UserAssembler userAssembler, UserRepository userRepository,
                               ReviewRepository reviewRepository, ReviewAssembler reviewAssembler,
@@ -50,8 +52,8 @@ public class UserRestController {
         return userAssembler.toModel(getUserById(id));
     }
     @GetMapping(value = "/users/{id}/photo", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<byte[]> getPhoto(@PathVariable Long id){
-        byte[] userPhoto = userRepository.findById(id).map(
+    public ResponseEntity<String> getPhoto(@PathVariable Long id){
+        String userPhoto = userRepository.findById(id).map(
                 user -> Objects.requireNonNull(user.getDisplayPhoto())
         ).orElseThrow(
                 () -> new UserNotFound(id)
@@ -62,7 +64,8 @@ public class UserRestController {
     public ResponseEntity<?> createUser(@ModelAttribute User user, @RequestParam("file") MultipartFile file){
         try {
             if (!file.isEmpty()){
-                user.setDisplayPhoto(file.getBytes());
+                String storedFileName = fileStorageService.store(file);
+                user.setDisplayPhoto(storedFileName);
             }
             User existsUser = getUserByUserName(user.getUserName());
             if (existsUser != null){
@@ -72,6 +75,8 @@ public class UserRestController {
             return ResponseEntity.created(createdUser.getRequiredLink(IanaLinkRelations.SELF).toUri()).build();
         } catch (IOException e) {
             return ResponseEntity.internalServerError().body("Error Uploading Image.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

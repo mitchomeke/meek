@@ -2,6 +2,7 @@ package com.example.MEEK;
 
 import com.example.MEEK.repositories.*;
 import com.example.MEEK.resources.*;
+import com.example.MEEK.services.FileStorageService;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
@@ -36,22 +37,39 @@ public class LoadDatabase {
                                    NotificationRepository notificationRepository,
                                    PasswordEncoder passwordEncoder) throws IOException {
 
-        ClassPathResource resource = new ClassPathResource("images/xperiment.png");
-        byte[] photoBytes = resource.getContentAsByteArray();
         String encodedPassword = passwordEncoder.encode("Mitchell"); // All users share this password
 
         return args -> {
             // ==========================================
             // 1. CREATE USERS
             // ==========================================
-            User mitch = userRepository.save(new User("mitch_31", photoBytes, encodedPassword));
-            User angela = userRepository.save(new User("angela_26", photoBytes, encodedPassword));
-            User daisy = userRepository.save(new User("daisy_44", photoBytes, encodedPassword));
-            User alex = userRepository.save(new User("alex_beats", photoBytes, encodedPassword));
-            User sarah = userRepository.save(new User("sarah_vibes", photoBytes, encodedPassword));
+            User mitch = new User("mitch_31", null, encodedPassword);
+            mitch.setFirstName("Mitch");
+            mitch.setLastName("Miller");
+            mitch = userRepository.save(mitch);
+
+            User angela = new User("angela_26", null, encodedPassword);
+            angela.setFirstName("Angela");
+            angela.setLastName("Bennett");
+            angela = userRepository.save(angela);
+
+            User daisy = new User("daisy_44", null, encodedPassword);
+            daisy.setFirstName("Daisy");
+            daisy.setLastName("Carter");
+            daisy = userRepository.save(daisy);
+
+            User alex = new User("alex_beats", null, encodedPassword);
+            alex.setFirstName("Alex");
+            alex.setLastName("Rivera");
+            alex = userRepository.save(alex);
+
+            User sarah = new User("sarah_vibes", null, encodedPassword);
+            sarah.setFirstName("Sarah");
+            sarah.setLastName("Jenkins");
+            sarah = userRepository.save(sarah);
 
             // Set bios for each user
-            mitch.setBio("Coffee addict ☕ | Running enthusiast 🏃 | Always looking for new food spots");
+            mitch.setBio("Coffee addict");
             angela.setBio("UI/UX Designer by day, amateur baker by night 🍰✨");
             daisy.setBio("Plant mom 🌿 | Books, travel, & good wine 🍷");
             alex.setBio("Music producer & vinyl collector 🎧🎹 Drop your playlist recs below!");

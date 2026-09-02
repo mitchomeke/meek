@@ -63,7 +63,6 @@
                     </button>
 
                 <div id="action-dropDown" class="hidden absolute right-0 mt-2 w-44 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl z-50 py-1.5 backdrop-blur-md">
-
                                 <th:block th:if="${!isBlocked}">
                                     <form th:if="${isFollowing}" th:action="@{/users/{id}/profile/unfollow(id=${profileUser.getId()})}" method="post">
                                         <button type="submit"

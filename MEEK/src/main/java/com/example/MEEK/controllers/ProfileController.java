@@ -5,6 +5,8 @@ import com.example.MEEK.resources.Follow;
 import com.example.MEEK.resources.Like;
 import com.example.MEEK.resources.Review;
 import com.example.MEEK.resources.User;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;

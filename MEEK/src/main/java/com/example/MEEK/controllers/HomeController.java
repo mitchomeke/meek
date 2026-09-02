@@ -3,11 +3,14 @@ package com.example.MEEK.controllers;
 import com.example.MEEK.exceptions.UserNotFound;
 import com.example.MEEK.repositories.*;
 import com.example.MEEK.resources.*;
+import com.example.MEEK.services.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.Comparator;
@@ -21,14 +24,16 @@ public class HomeController {
     private final LikeRepository likeRepository;
     private final FollowRepository followRepository;
     private final AuxMethods auxMethods;
+    private final FileStorageService fileStorageService;
 
-    public HomeController(UserRepository userRepository, MusicRepository musicRepository, ReviewRepository reviewRepository, NotificationRepository notificationRepository, LikeRepository likeRepository, FollowRepository followRepository) {
+    public HomeController(UserRepository userRepository, MusicRepository musicRepository, ReviewRepository reviewRepository, NotificationRepository notificationRepository, LikeRepository likeRepository, FollowRepository followRepository, FileStorageService fileStorageService) {
         this.userRepository = userRepository;
         this.musicRepository = musicRepository;
         this.reviewRepository = reviewRepository;
         this.notificationRepository = notificationRepository;
         this.likeRepository = likeRepository;
         this.followRepository = followRepository;
+        this.fileStorageService = fileStorageService;
         this.auxMethods = new AuxMethods();
     }
 
@@ -69,6 +74,16 @@ public class HomeController {
         userRepository.save(user);
 
         return "redirect:/allreviews?musicId="+review.getMusic().getId();
+    }
+    @PostMapping("/updatePhoto")
+    public String updatePhoto(Principal principal, @RequestParam(value = "customPhoto", required = false) MultipartFile customPhoto) throws Exception {
+        User user = userRepository.findByUserName(principal.getName()).orElseThrow();
+        if (customPhoto != null && !customPhoto.isEmpty()){
+            String savedFileName = fileStorageService.store(customPhoto);
+            user.setDisplayPhoto("/uploads/avatars/"+savedFileName);
+            userRepository.save(user);
+        }
+        return "redirect:/home";
     }
 
     @PostMapping("/home/explore/like")

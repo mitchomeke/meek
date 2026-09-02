@@ -147,4 +147,27 @@ public class SettingsControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/settings?sameAsBefore"));
     }
+    @Test
+    @WithMockUser(username = "mitch_31")
+    void passwordWorking() throws Exception {
+        String currentPassword = "current";
+        String newPassword = "final";
+        String finalPassword = "final";
+        User mockUser = new User();
+        mockUser.setUserName("mitch_31");
+        mockUser.setPassword(currentPassword);
+        when(userRepository.findByUserName("mitch_31")).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches(currentPassword,"current")).thenReturn(true);
+
+        mockMvc.perform(post("/settings/changePassword")
+                .param("currentPassword",currentPassword)
+                .param("newPassword",newPassword)
+                .param("finalPassword",finalPassword)
+                .with(user("mitch_31"))
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/settings?passwordUpdated"));
+
+        verify(userRepository).save(mockUser);
+    }
 }

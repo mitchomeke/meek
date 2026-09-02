@@ -17,8 +17,10 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void registerNewUser( String userName,String password){
+    public void registerNewUser(String userName,String firstName,String lastName,String password){
         User user = new User(userName);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
         String encodedPassword = passwordEncoder.encode(password);
         user.setPassword(encodedPassword);
         userRepository.save(user);

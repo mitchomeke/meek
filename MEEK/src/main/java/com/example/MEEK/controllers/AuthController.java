@@ -43,13 +43,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String createUser(@RequestParam("username") String UserName,
+    public String createUser(@RequestParam("firstName") String firstName, @RequestParam("lastName") String lastName,
+                                 @RequestParam("username") String UserName,
                              @RequestParam("password") String password,
                              HttpServletRequest request){
         if (userRepository.findByUserName(UserName).isPresent()){
             return "redirect:/register?exists";
         }
-        userService.registerNewUser(UserName,password);
+        userService.registerNewUser(UserName,firstName,lastName,password);
         auxMethods.authenticate(UserName,userDetailsService,request);
         return "redirect:/home";
     }
