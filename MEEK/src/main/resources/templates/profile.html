@@ -114,7 +114,9 @@
         </div>
 
         <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight" th:text="${profileUser.userName}">Username</h1>
-            <a th:if="${!blockedMe}" class="text-blue-400 text-xs mt-1 uppercase tracking-widest font-bold">Bio:</a>  <a th:text="${profileUser.bio ?: 'This User does not have a bio yet'}" class="text-blue-400 text-xs mt-1 uppercase tracking-widest font-bold">User Bio</a>
+            <a th:if="${!blockedMe}" class="text-blue-400 text-xs mt-1 uppercase tracking-widest font-bold" th:text="${profileUser.bio ?: 'This User does not have a bio yet'}">
+                User Bio
+            </a>
     </div>
 
     <!-- 3. TAB NAVIGATION PILLS -->
@@ -139,7 +141,7 @@
         </div>
 
         <!-- Reviews List -->
-        <div th:if="${userReviews != null and !userReviews.isEmpty()}" class="space-y-4">
+        <div th:if="${userReviews != null and !userReviews.isEmpty() and !blockedMe}" class="space-y-4">
             <div th:each="review : ${userReviews}" class="p-5 bg-zinc-900/50 hover:bg-zinc-900/80 rounded-2xl border border-zinc-800/80 transition-all duration-200 space-y-3">
                 <div class="flex justify-between items-start gap-3">
                     <form th:action="@{/allreviews}" method="get">
@@ -220,7 +222,7 @@
         </div>
 
         <!-- Likes List -->
-        <div th:if="${userLikes != null and !userLikes.isEmpty()}" class="space-y-4">
+        <div th:if="${userLikes != null and !userLikes.isEmpty() and !blockedMe}" class="space-y-4">
             <div th:each="like : ${userLikes}" class="p-5 bg-zinc-900/50 hover:bg-zinc-900/80 rounded-2xl border border-zinc-800/80 transition-all duration-200 space-y-3">
                 <div class="flex justify-between items-start gap-3">
                     <div>

@@ -17,6 +17,7 @@ public class User {
     private String firstName;
     private String lastName;
     private String userName;
+    private String fullName;
     @Lob
     @Column(name = "display_photo", columnDefinition = "LONGBLOB")
     @JsonIgnore
@@ -79,8 +80,14 @@ public class User {
     public String getFullName(){
       return firstName + " " + lastName;
     }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
     public List<User> getBlockedUsers() {
         return blockedUsers;
+    }
+    public void setBlockedUsers(List<User> blockedUsers) {
+        this.blockedUsers = blockedUsers;
     }
     public void blockUser(User user){
         blockedUsers.add(user);

@@ -48,8 +48,9 @@ public class MessagesController {
         message.setSender(sender);
         message.setContent(dto.getContent());
         message.setTimestamp(Instant.now());
-        notificationRepository.save(message);
-
+        if (!sender.getBlockedUsers().contains(receiver) && !receiver.getBlockedUsers().contains(sender)){
+            notificationRepository.save(message);
+        }
         messagingTemplate.convertAndSendToUser(dto.getReceiverUsername(),"/queue/messages",dto);
         userRepository.save(receiver);
 

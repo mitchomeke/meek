@@ -34,18 +34,28 @@
         </div>
 
         <!-- Navigation Links & Actions -->
-        <div class="flex items-center gap-3">
-            <!-- Search Button -->
-            <a th:href="@{/search}"
-               class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs rounded-full transition-all duration-200 shadow-lg shadow-blue-600/25 hover:shadow-blue-500/40">
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+            <a th:href="@{/searchUsers}"
+               title="Search Users"
+               class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs rounded-full transition-all duration-200 shadow-lg shadow-blue-600/25 shrink-0">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
-                <span>Search Music</span>
+                <span class="hidden md:inline">Search Users</span>
+            </a>
+            <!-- Search Button -->
+            <a th:href="@{/search}"
+               title="Search Music"
+               class="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs rounded-full transition-all duration-200 shadow-lg shadow-blue-600/25 shrink-0">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                </svg>
+                <span class="hidden md:inline">Search Music</span>
             </a>
 
             <a th:href="@{/inbox(userId=${user.id})}"
-               class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs rounded-full transition-all duration-200 shadow-lg shadow-blue-600/25 hover:shadow-blue-500/40">
+               title="Inbox"
+               class="inline-flex items-center justify-center w-8 h-8 bg-blue-600 hover:bg-blue-500 text-white rounded-full transition-all shadow-lg shadow-blue-600/25 shrink-0">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
@@ -53,8 +63,10 @@
 
 
             <!-- NOTIFICATION WRAPPER -->
-            <div class="relative">
-                <button type="button" onclick="notiDropDown()" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs rounded-full transition-all duration-200 shadow-lg shadow-blue-600/25 hover:shadow-blue-500/40">
+            <div class="relative shrink-0">
+                <button type="button" onclick="notiDropDown()"
+                        title="Notifications"
+                        class="inline-flex items-center justify-center w-8 h-8 bg-blue-600 hover:bg-blue-500 text-white rounded-full transition-all shadow-lg shadow-blue-600/25 cursor-pointer">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                     </svg>
@@ -119,23 +131,23 @@
 
             <!-- Friends Link -->
             <a th:href="@{/friends}"
-               class="px-3.5 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-medium rounded-full transition-all border border-zinc-800 hover:border-zinc-700">
+               class="hidden sm:inline-flex items-center px-3 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-medium rounded-full transition border border-zinc-800 shrink-0">
                 Friends &rarr;
             </a>
 
             <!-- Sign Out -->
-            <form th:action="@{/logout}" method="post" class="inline">
+            <form th:action="@{/logout}" method="post" class="inline shrink-0">
                 <button type="submit"
-                        class="px-3.5 py-1.5 bg-red-950/30 hover:bg-red-900/40 text-red-400 text-xs font-medium rounded-full transition border border-red-900/40 hover:border-red-800/60">
+                        class="px-3 py-1.5 bg-red-950/30 hover:bg-red-900/40 text-red-400 text-xs font-medium rounded-full transition border border-red-900/40 shrink-0 cursor-pointer">
                     Log Out
                 </button>
             </form>
 
-            <form th:action="@{/settings}" method="get">
+            <form th:action="@{/settings}" method="get" class="inline shrink-0">
                 <button type="submit"
-                        class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-medium rounded-full transition border border-zinc-700/50 hover:border-zinc-600 cursor-pointer">
-                    <!-- Gear Icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings">
+                        title="Settings"
+                        class="inline-flex items-center justify-center w-8 h-8 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-300 hover:text-white rounded-full transition border border-zinc-700/50 cursor-pointer shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
                         <circle cx="12" cy="12" r="3"/>
                     </svg>

@@ -1,10 +1,123 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full bg-black">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEEK - User Search</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font for modern Squarespace typography -->
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body>
+<body class="bg-black text-zinc-100 min-h-screen font-sans antialiased selection:bg-blue-600 selection:text-white relative overflow-x-hidden">
+
+<!-- Subtle Ambient Radial Glow (Squarespace Style) -->
+<div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute top-1/2 -right-32 w-96 h-96 bg-blue-900/10 rounded-full blur-3xl pointer-events-none"></div>
+
+<!-- 1. MODERN NAVIGATION BAR (Squarespace Style Sticky Header) -->
+<header class="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-black/75 backdrop-blur-xl transition-all">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <!-- Brand Logo -->
+        <a th:href="@{/home}" class="flex items-center gap-3 group">
+            <span class="text-xl font-black tracking-widest text-white uppercase bg-gradient-to-r from-white via-zinc-200 to-blue-500 bg-clip-text text-transparent">
+                MEEK
+            </span>
+            <span class="hidden sm:inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-950/60 border border-blue-800/40 text-blue-400">
+               User Search
+            </span>
+        </a>
+
+        <!-- Back Link -->
+        <a th:href="@{/home}"
+           class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold rounded-full transition-all border border-zinc-800 hover:border-zinc-700 shadow-sm">
+            <span class="text-sm leading-none">&larr;</span> Back to Home
+        </a>
+    </div>
+</header>
+
+<main class="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-8 relative z-10">
+
+    <!-- 2. HERO SEARCH CONTAINER -->
+    <div class="relative overflow-hidden bg-gradient-to-b from-zinc-900/90 to-zinc-950 p-6 sm:p-8 rounded-3xl border border-zinc-800/80 shadow-2xl space-y-6">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-blue-500 block mb-1">Catalog Explorer</span>
+            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">Search User</h1>
+            <p class="text-zinc-400 text-sm mt-1.5 font-medium">Find your friends & make some friends.</p>
+        </div>
+
+        <!-- Search Form -->
+        <form action="/searchUsers" method="get" class="flex gap-2.5">
+            <div class="relative flex-1">
+                <input type="text" name="query" th:value="${query}" placeholder="Search user..."
+                       class="w-full pl-4 pr-4 py-3 bg-black/80 border border-zinc-800 rounded-full text-white text-sm placeholder-zinc-600 focus:outline-none focus:border-blue-500 transition-all"/>
+            </div>
+            <button type="submit"
+                    class="px-6 py-3 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-lg shadow-blue-600/25 transition-all shrink-0 flex items-center gap-2">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <span>Search</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- 3. SEARCH RESULTS LIST -->
+    <div th:if="${allUsers != null}" class="space-y-4">
+
+        <div class="flex items-center justify-between border-b border-zinc-900 pb-2 px-1">
+            <span class="text-xs font-bold uppercase tracking-wider text-zinc-400">Search Results</span>
+            <span class="text-xs text-blue-400 font-semibold" th:text="${#lists.size(allUsers)} + ' users found'">0 users found</span>
+        </div>
+
+        <div th:each="user : ${allUsers}"
+             class="p-3.5 bg-zinc-950/90 hover:bg-zinc-900/90 rounded-2xl flex items-center justify-between gap-4 border border-zinc-800/80 transition-all duration-200 shadow-xl group">
+
+            <!-- Left: Cover Art & Text Details -->
+            <div class="flex items-center gap-3.5 min-w-0 flex-1">
+                <!-- Album Art with Fallback Container -->
+                <div class="relative shrink-0 w-12 h-12 sm:w-14 sm:h-14">
+                    <img th:if="${user.displayPhoto != null and !#lists.contains(user.blockedUsers,loggedInUser)}"
+                         th:src="${user.displayPhoto}"
+                         alt="Profile photo"
+                         class="w-full h-full rounded-full object-cover border border-zinc-800 shadow-md group-hover:border-rose-500/50 transition-all"/>
+
+                    <span th:unless="${user.displayPhoto != null and !#lists.contains(user.blockedUsers,loggedInUser)}"
+                         class="w-full h-full rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-600 text-lg"
+                    th:text="${#strings.substring(user.userName, 0, 1).toUpperCase()}">
+                        F
+                    </span>
+                </div>
+
+                <!-- Track & Artist Info -->
+                <div class="min-w-0 flex-1">
+                    <h3 class="font-bold text-white text-sm sm:text-base truncate group-hover:text-blue-400 cursor-pointer transition-colors"
+                        th:text="${user.fullName}">Full Name</h3>
+                    <p class="text-xs text-zinc-400 truncate mt-0.5 font-medium"
+                       th:text="${user.userName}">User Name</p>
+                </div>
+            </div>
+
+            <!-- Right: Explicit Analyze Form Button -->
+            <a th:href="@{/users/{id}/profile(id=${user.id})}" class="shrink-0">
+                <button type="submit"
+                        class="px-3.5 py-1.5 bg-gradient-to-r from-blue-700 to-blue-600 hover:from-blue-600 hover:to-blue-500 active:from-blue-800 active:to-blue-700 text-white font-medium text-xs rounded-full transition-all duration-200 shadow-md shadow-blue-950/60 border border-blue-500/40 cursor-pointer flex items-center gap-1.5">
+                    <span>Profile</span>
+                    <!-- Simple Right Chevron Icon -->
+                    <svg class="w-3.5 h-3.5 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </a>
+        </div>
+    </div>
+
+</main>
 
 </body>
 </html>
