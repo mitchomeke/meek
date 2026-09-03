@@ -1,3 +1,10 @@
+buildscript {
+	repositories {
+		maven { url 'https://maven-central.storage-download.googleapis.com/maven2/' }
+		gradlePluginPortal()
+		mavenCentral()
+	}
+}
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.1.0'
@@ -17,6 +24,8 @@ repositories {
 	mavenCentral()
 	maven {url 'https://repo.pring.io/milestone'}
 }
+
+
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-h2console'

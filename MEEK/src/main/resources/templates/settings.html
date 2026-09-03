@@ -103,36 +103,31 @@
 
             <div class="space-y-3">
                 <!-- Clear All Likes -->
-                <form th:action="@{/settings/clear-likes}" method="post" onsubmit="return confirm('Clear all your liked reviews?');">
-                    <button type="submit" class="w-full flex items-center justify-between p-4 bg-[#160d14] hover:bg-[#20101b] text-rose-200 text-sm font-semibold rounded-xl border border-rose-900/40 transition cursor-pointer group">
+                    <button onclick="openSureLikes()" type="button" class="w-full flex items-center justify-between p-4 bg-[#160d14] hover:bg-[#20101b] text-rose-200 text-sm font-semibold rounded-xl border border-rose-900/40 transition cursor-pointer group">
                             <span class="flex items-center gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="text-rose-500"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
                                 Clear All Likes
                             </span>
                         <span class="text-xs font-bold text-rose-500/80 uppercase tracking-wider">Reset</span>
                     </button>
-                </form>
+
 
                 <!-- Clear All Reviews -->
-                <form th:action="@{/settings/clear-reviews}" method="post" onsubmit="return confirm('Delete ALL your published reviews? This cannot be undone.');">
-                    <button type="submit" class="w-full flex items-center justify-between p-4 bg-[#160d14] hover:bg-[#20101b] text-rose-200 text-sm font-semibold rounded-xl border border-rose-900/40 transition cursor-pointer group">
+                    <button onclick="openSureReviews()" type="button" class="w-full flex items-center justify-between p-4 bg-[#160d14] hover:bg-[#20101b] text-rose-200 text-sm font-semibold rounded-xl border border-rose-900/40 transition cursor-pointer group">
                             <span class="flex items-center gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-rose-500"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                                 Clear All Reviews
                             </span>
                         <span class="text-xs font-bold text-rose-500/80 uppercase tracking-wider">Reset</span>
                     </button>
-                </form>
 
                 <!-- Delete Account -->
-                <form th:action="@{/settings/delete-account}" method="post" onsubmit="return confirm('PERMANENT ACTION: Delete your MEEK account?');">
-                    <button type="submit" class="w-full flex items-center justify-between p-4 bg-rose-950/40 hover:bg-rose-900/60 text-rose-100 text-sm font-bold rounded-xl border border-rose-800/80 transition cursor-pointer group">
+                    <button onclick="openSureDelete()" type="button" class="w-full flex items-center justify-between p-4 bg-rose-950/40 hover:bg-rose-900/60 text-rose-100 text-sm font-bold rounded-xl border border-rose-800/80 transition cursor-pointer group">
                             <span class="flex items-center gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-rose-300"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="13"/><line x1="22" x2="17" y1="8" y2="13"/></svg>
                                 Delete Account
                             </span>
                     </button>
-                </form>
             </div>
         </section>
 
@@ -211,6 +206,28 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
             </svg>
             <span>Password updated successfully!</span>
+        </div>
+        <a th:href="@{/settings}" class="text-emerald-500 hover:text-emerald-300 text-sm font-bold transition">✕</a>
+    </div>
+
+    <div th:if="${param.likesCleared}"
+         class="mb-6 bg-emerald-950/40 border border-emerald-800/60 text-emerald-300 p-4 rounded-2xl text-xs font-semibold backdrop-blur-sm flex items-center justify-between shadow-xl">
+        <div class="flex items-center gap-2.5">
+            <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span>Your likes have been cleared successfully!</span>
+        </div>
+        <a th:href="@{/settings}" class="text-emerald-500 hover:text-emerald-300 text-sm font-bold transition">✕</a>
+    </div>
+
+    <div th:if="${param.reviewsCleared}"
+         class="mb-6 bg-emerald-950/40 border border-emerald-800/60 text-emerald-300 p-4 rounded-2xl text-xs font-semibold backdrop-blur-sm flex items-center justify-between shadow-xl">
+        <div class="flex items-center gap-2.5">
+            <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span>Your reviews have been cleared successfully!</span>
         </div>
         <a th:href="@{/settings}" class="text-emerald-500 hover:text-emerald-300 text-sm font-bold transition">✕</a>
     </div>
@@ -334,6 +351,135 @@
         </div>
     </div>
 
+    <div id="sure-likes" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
+
+            <div class="flex items-center justify-between border-b border-zinc-900 pb-3">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-white">Clear Likes</h3>
+                <button type="button"
+                        onclick="closeSureLikes()"
+                        class="text-zinc-500 hover:text-zinc-300 text-xs p-1 rounded-md hover:bg-zinc-900 transition cursor-pointer">
+                    ✕
+                </button>
+            </div>
+
+            <div class="flex items-start gap-3.5">
+                <div class="p-2.5 bg-rose-950/40 text-rose-400 border border-rose-800/40 rounded-xl shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-sm font-semibold text-zinc-100">Clear all saved likes?</p>
+                    <p class="text-xs text-zinc-400 leading-relaxed">
+                        This will remove all likes from your liked collection. This action cannot be reversed.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-zinc-900">
+                <button type="button"
+                        onclick="closeSureLikes()"
+                        class="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-semibold rounded-lg border border-zinc-800 transition cursor-pointer">
+                    Cancel
+                </button>
+
+                <form th:action="@{/settings/clearAllLikes}" method="post" class="m-0">
+                    <button type="submit"
+                            class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold rounded-lg transition shadow-sm cursor-pointer">
+                        Yes, Clear Likes
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="sure-reviews" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
+
+            <div class="flex items-center justify-between border-b border-zinc-900 pb-3">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-white">Clear Reviews</h3>
+                <button type="button"
+                        onclick="closeSureReviews()"
+                        class="text-zinc-500 hover:text-zinc-300 text-xs p-1 rounded-md hover:bg-zinc-900 transition cursor-pointer">
+                    ✕
+                </button>
+            </div>
+
+            <div class="flex items-start gap-3.5">
+                <div class="p-2.5 bg-amber-950/40 text-amber-400 border border-amber-800/40 rounded-xl shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-sm font-semibold text-zinc-100">Clear all reviews?</p>
+                    <p class="text-xs text-zinc-400 leading-relaxed">
+                        This will delete your reviews and ratings across all songs. This action cannot be reversed.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-zinc-900">
+                <button type="button"
+                        onclick="closeSureReviews()"
+                        class="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-semibold rounded-lg border border-zinc-800 transition cursor-pointer">
+                    Cancel
+                </button>
+
+                <form th:action="@{/settings/clearAllReviews}" method="post" class="m-0">
+                    <button type="submit"
+                            class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold rounded-lg transition shadow-sm cursor-pointer">
+                        Yes, Clear Reviews
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="sure-delete" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center z-50 p-4">
+        <div class="bg-zinc-950 border border-zinc-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
+
+            <div class="flex items-center justify-between border-b border-zinc-900 pb-3">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-white">Delete Account</h3>
+                <button type="button"
+                        onclick="closeSureDelete()"
+                        class="text-zinc-500 hover:text-zinc-300 text-xs p-1 rounded-md hover:bg-zinc-900 transition cursor-pointer">
+                    ✕
+                </button>
+            </div>
+
+            <div class="flex items-start gap-3.5">
+                <div class="p-2.5 bg-red-950/40 text-red-400 border border-red-800/40 rounded-xl shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div class="space-y-1">
+                    <p class="text-sm font-semibold text-zinc-100">Hold on, are you sure?</p>
+                    <p class="text-xs text-zinc-400 leading-relaxed">
+                        This action is permanent and cannot be undone. All your tasting notes, event history, and pairings will be erased.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-zinc-900">
+                <button type="button"
+                        onclick="closeSureDelete()"
+                        class="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-semibold rounded-lg border border-zinc-800 transition cursor-pointer">
+                    Cancel
+                </button>
+
+                <form th:action="@{/settings/deleteAccount}" method="post" class="m-0">
+                    <button type="submit"
+                            class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-xs font-semibold rounded-lg transition shadow-sm cursor-pointer">
+                        Yes, Delete Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -372,7 +518,37 @@
         modal.classList.add('hidden');
         modal.classList.remove('flex');
     }
+    function openSureLikes(){
+        const modal = document.getElementById('sure-likes');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    function closeSureLikes(){
+        const modal = document.getElementById('sure-likes');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
 
+    function openSureReviews(){
+        const modal = document.getElementById('sure-reviews');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    function closeSureReviews(){
+        const modal = document.getElementById('sure-reviews');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    function openSureDelete(){
+        const modal = document.getElementById('sure-delete');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    function closeSureDelete(){
+        const modal = document.getElementById('sure-delete');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
 
 </script>
 

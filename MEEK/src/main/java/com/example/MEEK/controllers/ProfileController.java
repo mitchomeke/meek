@@ -47,6 +47,7 @@ public class ProfileController {
             followRepository.save(follow.get());
         }
 
+        model.addAttribute("blockedMe",userProfile.getBlockedUsers().contains(loggedInUser));
         model.addAttribute("isBlocked",loggedInUser.getBlockedUsers().contains(userProfile));
         model.addAttribute("loggedInUser",loggedInUser);
         model.addAttribute("profileUser",userProfile);

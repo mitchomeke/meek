@@ -101,19 +101,11 @@ public class HomeController {
         User user = userRepository.findByUserName(name).orElseThrow(
                 () -> new UserNotFound(1L)
         );
+        model.addAttribute("activeTab","home");
         model.addAttribute("user",user);
         model.addAttribute("friends",followRepository.getReceiversFor(user).stream().toList());
-        model.addAttribute("songs",musicRepository.findAll());
         model.addAttribute("userReviews",reviewRepository.getUserReviews(user).stream().toList());
-        model.addAttribute("reviewOfLikes",likeRepository.findBySender(user).stream().map(Like::getReview).toList());
         model.addAttribute("likes",likeRepository.findBySender(user));
-        model.addAttribute("musics",musicRepository.findAll()
-                .stream().filter(music -> music.getRating() > 0).
-                sorted(Comparator.comparingDouble(Music::getRating).reversed()).toList());
-
-        model.addAttribute("friendReviews",
-                reviewRepository.findByUserIn(followRepository.getReceiversFor(user).stream().toList()));
-        model.addAttribute("musicOfReviews",reviewRepository.songOfReviewsByUser(user).stream().toList());
         model.addAttribute("notifications",notificationRepository.findByReceiver(user).stream().filter(
                 n -> !n.isDismissed()
         ).toList());

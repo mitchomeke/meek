@@ -103,11 +103,18 @@
 
         <!-- User Avatar Circle -->
         <div class="w-24 h-24 rounded-full bg-blue-950 text-blue-400 flex items-center justify-center font-extrabold text-4xl mx-auto mb-4 border-2 border-blue-500/80 shadow-2xl shadow-blue-950/80">
-            <span th:text="${#strings.substring(profileUser.userName, 0, 1).toUpperCase()}">U</span>
+                     <span th:if="${profileUser.getDisplayPhoto() == null or blockedMe}" th:text="${#strings.substring(profileUser.userName, 0, 1).toUpperCase()}">
+                            F
+                        </span>
+            <img th:unless="${profileUser.getDisplayPhoto() == null or blockedMe}"
+                 th:src="@{${profileUser.getDisplayPhoto()}}"
+                 alt="Profile Photo"
+                 class="w-full h-full rounded-full object-cover"
+            />
         </div>
 
         <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight" th:text="${profileUser.userName}">Username</h1>
-    <a class="text-blue-400 text-xs mt-1 uppercase tracking-widest font-bold">Bio:</a>    <a th:text="${profileUser.bio ?: 'This User does not have a bio yet'}" class="text-blue-400 text-xs mt-1 uppercase tracking-widest font-bold">User Bio</a>
+            <a th:if="${!blockedMe}" class="text-blue-400 text-xs mt-1 uppercase tracking-widest font-bold">Bio:</a>  <a th:text="${profileUser.bio ?: 'This User does not have a bio yet'}" class="text-blue-400 text-xs mt-1 uppercase tracking-widest font-bold">User Bio</a>
     </div>
 
     <!-- 3. TAB NAVIGATION PILLS -->
@@ -197,7 +204,7 @@
         </div>
 
         <!-- Empty State -->
-        <div th:if="${userReviews == null or userReviews.isEmpty()}" class="text-zinc-500 text-xs uppercase tracking-wider py-12 text-center">
+        <div th:if="${blockedMe or userReviews == null or userReviews.isEmpty()}" class="text-zinc-500 text-xs uppercase tracking-wider py-12 text-center">
             User has not submitted any reviews yet.
         </div>
 
@@ -240,7 +247,7 @@
         </div>
 
         <!-- Empty State -->
-        <div th:if="${userLikes == null or userLikes.isEmpty()}" class="text-zinc-500 text-xs uppercase tracking-wider py-12 text-center">
+        <div th:if="${blockedMe or userLikes == null or userLikes.isEmpty()}" class="text-zinc-500 text-xs uppercase tracking-wider py-12 text-center">
             User has not liked any reviews yet.
         </div>
     </div>

@@ -2,7 +2,7 @@ package com.example.MEEK;
 
 import com.example.MEEK.config.SecurityConfig;
 import com.example.MEEK.controllers.SettingsController;
-import com.example.MEEK.repositories.UserRepository;
+import com.example.MEEK.repositories.*;
 import com.example.MEEK.resources.User;
 import com.example.MEEK.services.CustomUserDetailsService;
 import org.mockito.Mockito;
@@ -46,15 +46,20 @@ import static reactor.core.Disposables.never;
 public class SettingsControllerTest {
     @Autowired
     private MockMvc mockMvc;
-
     @MockitoBean
     private UserRepository userRepository;
-
     @MockitoBean
     private CustomUserDetailsService userDetailsService;
-
     @MockitoBean
     private PasswordEncoder passwordEncoder;
+    @MockitoBean
+    private ReviewRepository reviewRepository;
+    @MockitoBean
+    private  LikeRepository likeRepository;
+    @MockitoBean
+    private CommentRepository commentRepository;
+    @MockitoBean
+    private NotificationRepository notificationRepository;
 
     @Test
     @WithMockUser(username = "mitch_31")
@@ -136,38 +141,55 @@ public class SettingsControllerTest {
         mockUser.setUserName("mitch_31");
         mockUser.setPassword("currentPassword");
         when(userRepository.findByUserName("mitch_31")).thenReturn(Optional.of(mockUser));
-        when(passwordEncoder.matches("encodedPass","currentPassword")).thenReturn(true);
+        when(passwordEncoder.matches("encodedPass", "currentPassword")).thenReturn(true);
 
         mockMvc.perform(post("/settings/changePassword")
-                .param("currentPassword","encodedPass")
-                .param("newPassword","encodedPass")
-                .param("finalPassword","encodedPass")
-                .with(user("mitch_31"))
-                .with(csrf()))
+                        .param("currentPassword", "encodedPass")
+                        .param("newPassword", "encodedPass")
+                        .param("finalPassword", "encodedPass")
+                        .with(user("mitch_31"))
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/settings?sameAsBefore"));
     }
     @Test
     @WithMockUser(username = "mitch_31")
-    void passwordWorking() throws Exception {
-        String currentPassword = "current";
-        String newPassword = "final";
-        String finalPassword = "final";
+    void deleteAccount() throws Exception {
         User mockUser = new User();
         mockUser.setUserName("mitch_31");
-        mockUser.setPassword(currentPassword);
         when(userRepository.findByUserName("mitch_31")).thenReturn(Optional.of(mockUser));
-        when(passwordEncoder.matches(currentPassword,"current")).thenReturn(true);
 
-        mockMvc.perform(post("/settings/changePassword")
-                .param("currentPassword",currentPassword)
-                .param("newPassword",newPassword)
-                .param("finalPassword",finalPassword)
+        mockMvc.perform(post("/settings/deleteAccount")
+                .with(csrf())
                 .with(user("mitch_31"))
-                .with(csrf()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/settings?passwordUpdated"));
-
-        verify(userRepository).save(mockUser);
+                ).andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/register"));
     }
+    @Test
+    @WithMockUser(username = "mitch_31")
+    void clearReviews() throws Exception {
+        User mockUser = new User();
+        mockUser.setUserName("mitch_31");
+        when(userRepository.findByUserName("mitch_31")).thenReturn(Optional.of(mockUser));
+
+        mockMvc.perform(post("/settings/clearAllReviews")
+                        .with(csrf())
+                        .with(user("mitch_31"))
+                ).andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/settings?reviewsCleared"));
+    }
+    @Test
+    @WithMockUser(username = "mitch_31")
+    void clearLikes() throws Exception {
+        User mockUser = new User();
+        mockUser.setUserName("mitch_31");
+        when(userRepository.findByUserName("mitch_31")).thenReturn(Optional.of(mockUser));
+
+        mockMvc.perform(post("/settings/clearAllLikes")
+                        .with(csrf())
+                        .with(user("mitch_31"))
+                ).andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/settings?likesCleared"));
+    }
+
 }

@@ -1,12 +1,15 @@
 package com.example.MEEK.controllers;
 
-import com.example.MEEK.repositories.UserRepository;
+import com.example.MEEK.repositories.*;
+import com.example.MEEK.resources.Review;
 import com.example.MEEK.resources.User;
 import com.example.MEEK.services.CustomUserDetailsService;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -25,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/settings")
@@ -33,11 +37,19 @@ public class SettingsController {
     private final CustomUserDetailsService userDetailsService;
     private final AuxMethods auxMethods;
     private final PasswordEncoder passwordEncoder;
+    private final ReviewRepository reviewRepository;
+    private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
+    private final NotificationRepository notificationRepository;
 
-    public SettingsController(UserRepository userRepository, CustomUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    public SettingsController(UserRepository userRepository, CustomUserDetailsService userDetailsService, PasswordEncoder passwordEncoder, ReviewRepository reviewRepository, LikeRepository likeRepository, CommentRepository commentRepository, NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
+        this.reviewRepository = reviewRepository;
+        this.likeRepository = likeRepository;
+        this.commentRepository = commentRepository;
+        this.notificationRepository = notificationRepository;
         this.auxMethods = new AuxMethods();
     }
 
@@ -98,6 +110,38 @@ public class SettingsController {
         user.setBio(newBio);
         userRepository.save(user);
         return "redirect:/settings?bioUpdated";
+    }
+    @Transactional
+    @PostMapping("/clearAllReviews")
+    public String clearReviews(Principal principal){
+        User user = userRepository.findByUserName(principal.getName()).orElseThrow();
+        List<Review> reviewsByUser = reviewRepository.getUserReviews(user);
+        reviewsByUser.forEach(
+                r -> {
+                 commentRepository.deleteCommentsOfReview(r);
+                 likeRepository.deleteLikesOfReview(r);
+                }
+        );
+        reviewRepository.deleteReviewsByUser(user);
+        userRepository.save(user);
+        return "redirect:/settings?reviewsCleared";
+    }
+    @PostMapping("/clearAllLikes")
+    public String clearLikes(Principal principal){
+        User user = userRepository.findByUserName(principal.getName()).orElseThrow();
+        likeRepository.deleteLikesBySender(user);
+        userRepository.save(user);
+        return "redirect:/settings?likesCleared";
+    }
+
+    @Transactional
+    @PostMapping("/deleteAccount")
+    public String deleteUser(Principal principal){
+        User user = userRepository.findByUserName(principal.getName()).orElseThrow();
+        notificationRepository.deleteAllByUser(user);
+        reviewRepository.deleteReviewsByUser(user);
+        userRepository.delete(user);
+        return "redirect:/register";
     }
 
 }

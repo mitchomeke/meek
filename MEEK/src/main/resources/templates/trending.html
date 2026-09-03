@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" class="h-full bg-black">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEEK - Trending</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script type="module">
+        import hotwiredTurbo from 'https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.12/+esm';
+    </script>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-black text-zinc-100 min-h-screen font-sans antialiased selection:bg-blue-600 selection:text-white">
+<header class="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-black/75 backdrop-blur-xl transition-all">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <!-- Brand Logo -->
+        <div class="flex items-center gap-3">
+            <span class="text-xl font-black tracking-widest text-white uppercase bg-gradient-to-r from-white via-zinc-200 to-blue-500 bg-clip-text text-transparent">
+                MEEK
+            </span>
+            <span class="hidden sm:inline-block text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-950/60 border border-blue-800/40 text-blue-400">
+                Trending
+            </span>
+        </div>
+
+        <!-- Navigation Links & Actions -->
+        <div class="flex items-center gap-3">
+            <!-- Search Button -->
+            <a th:href="@{/search}"
+               class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs rounded-full transition-all duration-200 shadow-lg shadow-blue-600/25 hover:shadow-blue-500/40">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <span>Search Music</span>
+            </a>
+
+            <a th:href="@{/inbox(userId=${user.id})}"
+               class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs rounded-full transition-all duration-200 shadow-lg shadow-blue-600/25 hover:shadow-blue-500/40">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+            </a>
+
+
+            <!-- NOTIFICATION WRAPPER -->
+            <div class="relative">
+                <button type="button" onclick="notiDropDown()" class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium text-xs rounded-full transition-all duration-200 shadow-lg shadow-blue-600/25 hover:shadow-blue-500/40">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                </button>
+
+                <!-- FLOATING DROPDOWN MENU -->
+                <div id="noti-drop" class="hidden absolute right-0 mt-3 w-80 sm:w-96 bg-zinc-950 p-5 rounded-2xl border border-zinc-800 shadow-2xl z-50 space-y-4">
+                    <div class="border-b border-zinc-900 pb-3 flex justify-between items-center">
+                        <h2 class="text-sm font-bold text-white tracking-tight">Messages & Likes</h2>
+                        <span class="text-[10px] text-blue-400 font-semibold px-2 py-0.5 rounded-full bg-blue-950/60 border border-blue-800/40">Activity</span>
+                    </div>
+
+                    <div th:if="${notifications != null and !notifications.isEmpty()}" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+                        <div th:each="notification : ${notifications}" class="p-3.5 bg-zinc-900/60 hover:bg-zinc-900 rounded-xl border border-zinc-800/80 space-y-2 transition">
+                            <div class="flex justify-between items-start gap-4">
+                                <div th:switch="${notification.notificationType()}">
+                                    <div th:case="'MESSAGE'">
+                                        <a th:href="@{/messages(recipient=${notification.getSender().userName},messenger=${user.userName},notiId=${notification.getId()})}" class="group block">
+                                            <h3 class="font-bold text-white text-xs group-hover:text-blue-400 transition"
+                                                th:text="${notification.sender != null ?  notification.sender.userName + ' sent you a message' : 'Someone sent you a message'}">
+                                                User sent you a message
+                                            </h3>
+                                        </a>
+                                    </div>
+                                    <div th:case="'LIKE'">
+                                        <a th:href="@{/reviewOf(likeId=${notification.getId()})}" class="group block">
+                                            <h3 class="font-bold text-white text-xs group-hover:text-blue-400 transition"
+                                                th:text="${notification.sender != null ?  notification.sender.userName + ' liked your review' : 'Someone liked your review'}">
+                                                User liked your review
+                                            </h3>
+                                        </a>
+                                    </div>
+                                    <div th:case="'FOLLOW'">
+                                        <a th:href="@{/users/{id}/profile(id=${notification.getSender().getId()})}" class="group block">
+                                            <h3 class="font-bold text-white text-xs group-hover:text-blue-400 transition"
+                                                th:text="${notification.getSender() != null ?  notification.getSender().userName + ' just followed you' : 'Someone just followed you'}">
+                                                User just followed you
+                                            </h3>
+                                        </a>
+                                    </div>
+                                    <div th:case="'COMMENT'">
+                                        <a th:href="@{/comments(id=${notification.getReviewIfComment().getId()})}" class="group block">
+                                            <h3 class="font-bold text-white text-xs group-hover:text-blue-400 transition"
+                                                th:text="${notification.getSender() != null ?  notification.getSender().userName + ' just commented on your review!' : 'Someone just commented on your review!'}">
+                                                User just commented on your review!
+                                            </h3>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Shown when user HAS NO notifications -->
+                    <div th:unless="${notifications != null and !notifications.isEmpty()}" class="py-6 text-center text-zinc-500 text-xs">
+                        <p>No new notifications.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Friends Link -->
+            <a th:href="@{/friends}"
+               class="px-3.5 py-1.5 bg-zinc-900/80 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-medium rounded-full transition-all border border-zinc-800 hover:border-zinc-700">
+                Friends &rarr;
+            </a>
+
+            <!-- Sign Out -->
+            <form th:action="@{/logout}" method="post" class="inline">
+                <button type="submit"
+                        class="px-3.5 py-1.5 bg-red-950/30 hover:bg-red-900/40 text-red-400 text-xs font-medium rounded-full transition border border-red-900/40 hover:border-red-800/60">
+                    Log Out
+                </button>
+            </form>
+
+            <form th:action="@{/settings}" method="get">
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-zinc-900/60 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-medium rounded-full transition border border-zinc-700/50 hover:border-zinc-600 cursor-pointer">
+                    <!-- Gear Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings">
+                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+</header>
+<div th:replace="~{fragments/navigation :: navbar('trending')}"></div>
+<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div id="tab-trending" class="bg-zinc-950 p-6 sm:p-7 rounded-2xl border border-zinc-800 shadow-xl space-y-6">
+        <div class="border-b border-zinc-900 pb-4">
+            <h2 class="text-lg font-bold text-white tracking-tight">Trending Releases</h2>
+            <p class="text-zinc-400 text-xs mt-0.5">Highest-rated music across the community this week.</p>
+        </div>
+
+        <div th:if="${musics != null and !musics.isEmpty()}" class="space-y-4">
+            <div th:each="music : ${musics}" class="p-5 bg-zinc-900/50 rounded-xl border border-zinc-800/80">
+                <div class="flex justify-between items-start gap-4">
+                    <div>
+                        <a th:href="@{/allreviews(musicId=${music.getId()})}" class="group block">
+                            <h3 class="font-bold text-white text-base group-hover:text-blue-400 transition" th:text="${music != null ? music.musicName : 'Song Title'}">Song Title</h3>
+                            <p class="text-xs text-zinc-400 font-medium" th:text="${music != null ? music.artistName : 'Artist Name'}">Artist Name</p>
+                        </a>
+                    </div>
+
+                    <div class="flex flex-col items-end space-y-2 shrink-0">
+                        <div class="text-amber-400 text-xs tracking-widest font-bold">
+                            <span th:if="${music.getRating() > 0}" th:text="${'★'.repeat(T(java.lang.Math).round(music.getRating()))}"></span>
+                        </div>
+
+                        <div th:unless="${#lists.contains(musicOfReviews, music)}">
+                            <button th:onclick="|openTrendingModal('trending-modal-${music.id}')|"
+                                    class="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-lg transition shadow-md shadow-blue-600/20">
+                                Review
+                            </button>
+                        </div>
+
+                        <div th:if="${#lists.contains(musicOfReviews, music)}">
+                            <div th:each="review : ${userReviews}">
+                                <button th:if="${review.music == music}"
+                                        th:data-trending-id="${review.id}"
+                                        th:data-trending-song="${review.music != null ? review.music.musicName : 'Song'}"
+                                        th:data-trending-rating="${review.rating}"
+                                        th:data-trending-description="${review.description}"
+                                        onclick="openTrendingEditReview(this)"
+                                        class="px-3 py-1 bg-amber-600 hover:bg-amber-500 text-white font-medium text-xs rounded-lg transition shadow-md shadow-amber-600/20">
+                                    Edit Review
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal per song in Trending -->
+                <div th:id="'trending-modal-' + ${music.id}" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center z-50 p-4">
+                    <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-4">
+                        <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                            <h3 class="text-base font-bold text-white">Write a Review</h3>
+                            <button th:onclick="|closeTrendingModal('trending-modal-${music.id}')|" class="text-zinc-400 hover:text-white font-bold text-lg">&times;</button>
+                        </div>
+                        <form th:action="@{/reviews}" method="post" class="space-y-4">
+                            <input type="hidden" name="songId" th:value="${music.id}"/>
+                            <p class="text-xs text-blue-400 font-semibold" th:text="${music.musicName + ' - ' + music.artistName}">Song Title - Artist</p>
+                            <div>
+                                <label class="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-1.5">Rating</label>
+                                <select name="rating" required class="w-full bg-black border border-zinc-800 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500">
+                                    <option value="5">⭐⭐⭐⭐⭐</option>
+                                    <option value="4">⭐⭐⭐⭐</option>
+                                    <option value="3">⭐⭐⭐</option>
+                                    <option value="2">⭐⭐</option>
+                                    <option value="1">⭐</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-1.5">Description</label>
+                                <textarea name="description" rows="3" required class="w-full bg-black border border-zinc-800 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"></textarea>
+                            </div>
+                            <div class="flex justify-end space-x-3 pt-2">
+                                <button type="button" th:onclick="|closeTrendingModal('trending-modal-${music.id}')|" class="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-semibold rounded-lg">Cancel</button>
+                                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-md shadow-blue-600/20">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Global Edit Trending Review Modal -->
+<div id="edit-trending-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center z-50 p-4">
+    <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-4">
+        <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+            <div>
+                <h3 class="text-base font-bold text-white">Edit Your Review</h3>
+                <p id="edit-song-title-trending" class="text-xs text-zinc-400">Editing review</p>
+            </div>
+            <button onclick="closeTrendingEditReview()" class="text-zinc-400 hover:text-white font-bold text-lg">&times;</button>
+        </div>
+        <form th:action="@{/reviews/edit}" method="post" class="space-y-4">
+            <input type="hidden" id="edit-trendingReview-id" name="reviewId" />
+            <div>
+                <label class="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-1.5">Rating</label>
+                <select id="edit-TrendingRating" name="rating" required class="w-full bg-black border border-zinc-800 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500">
+                    <option value="5">⭐⭐⭐⭐⭐</option>
+                    <option value="4">⭐⭐⭐⭐</option>
+                    <option value="3">⭐⭐⭐</option>
+                    <option value="2">⭐⭐</option>
+                    <option value="1">⭐</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-1.5">Description / Notes</label>
+                <textarea id="edit-TrendingDescription" name="description" rows="3" required class="w-full bg-black border border-zinc-800 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"></textarea>
+            </div>
+            <div class="flex justify-end space-x-3 pt-2">
+                <button type="button" onclick="closeTrendingEditReview()" class="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-semibold rounded-lg transition">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition shadow-md shadow-blue-600/20">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function notiDropDown(){
+        document.getElementById('noti-drop').classList.toggle('hidden');
+    }
+    function openTrendingEditReview(btn) {
+        document.getElementById('edit-trendingReview-id').value = btn.getAttribute('data-trending-id');
+        document.getElementById('edit-song-title-trending').innerText = "Editing review for " + btn.getAttribute('data-trending-song');
+        document.getElementById('edit-TrendingRating').value = btn.getAttribute('data-trending-rating');
+        document.getElementById('edit-TrendingDescription').value = btn.getAttribute('data-trending-description');
+        document.getElementById('edit-trending-modal').classList.remove('hidden');
+    }
+    function closeTrendingEditReview() {
+        document.getElementById('edit-trending-modal').classList.add('hidden');
+    }
+    function openTrendingModal(modalId) {
+        document.getElementById(modalId).classList.remove('hidden');
+    }
+    function closeTrendingModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
+    function openEditReview(btn) {
+        document.getElementById('edit-review-id').value = btn.getAttribute('data-id');
+        document.getElementById('edit-song-title-display').innerText = "Editing review for " + btn.getAttribute('data-song');
+        document.getElementById('edit-rating').value = btn.getAttribute('data-rating');
+        document.getElementById('edit-description').value = btn.getAttribute('data-description');
+        document.getElementById('edit-review-modal').classList.remove('hidden');
+    }
+    function closeEditReview() {
+        document.getElementById('edit-review-modal').classList.add('hidden');
+    }
+
+</script>
+
+</body>
+</html>

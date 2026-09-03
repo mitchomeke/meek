@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.ui.Model;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -47,5 +48,14 @@ public class AuxMethods {
 
         HttpSession session = request.getSession(true);
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,sc);
+    }
+    public void pageInit(Model model, User user, NotificationRepository notificationRepository, ReviewRepository reviewRepository, FollowRepository followRepository, LikeRepository likeRepository) {
+        model.addAttribute("user",user);
+        model.addAttribute("notifications", notificationRepository.findByReceiver(user).stream().filter(
+                n -> !n.isDismissed()
+        ).toList());
+        model.addAttribute("friendReviews",
+                reviewRepository.findByUserIn(followRepository.getReceiversFor(user).stream().toList()));
+        model.addAttribute("reviewOfLikes", likeRepository.findBySender(user).stream().map(Like::getReview).toList());
     }
 }

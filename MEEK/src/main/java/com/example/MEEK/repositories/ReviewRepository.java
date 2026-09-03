@@ -3,7 +3,9 @@ package com.example.MEEK.repositories;
 import com.example.MEEK.resources.Music;
 import com.example.MEEK.resources.Review;
 import com.example.MEEK.resources.User;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -24,4 +26,7 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
     @Query("select r from Review r where r.user = :user")
     List<Review> getUserReviews(User user);
 
+    @Modifying
+    @Transactional
+    List<Review> deleteReviewsByUser(User user);
 }
